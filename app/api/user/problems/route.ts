@@ -15,14 +15,14 @@ export async function GET(req: Request) {
       );
     }
 
-    await connectToDatabase();
-
-    // Fetch problems created by the user
+    await connectToDatabase();    // Fetch problems created by the user
     // Check if the Problem model exists before querying
     let userProblems = [];
     try {
       if (Problem) {
-        userProblems = await Problem.find({ userId: session.user.id });
+        userProblems = await Problem.find({ author: session.user.id })
+          .populate('author', 'name email')
+          .sort({ createdAt: -1 });
       }
     } catch (error) {
       console.error('Error fetching user problems:', error);

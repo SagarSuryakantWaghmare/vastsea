@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(req: Request) {
   try {
@@ -10,6 +11,9 @@ export async function GET(req: Request) {
     const query = searchParams.get('query') || '';
     const language = searchParams.get('language') || '';
     const tag = searchParams.get('tag') || '';
+    
+    // Get session with authOptions
+    const session = await getServerSession(authOptions);
     
     // Connect to database
     await connectToDatabase();
@@ -49,8 +53,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // Check authentication
-    const session = await getServerSession();
+    // Check authentication with authOptions
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },

@@ -42,11 +42,15 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
+    
+    // Filter out fdprocessedid to prevent hydration warnings
+    const { fdprocessedid, ...filteredProps } = props as any;
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        {...props}
+        {...filteredProps}
       />
     );
   }

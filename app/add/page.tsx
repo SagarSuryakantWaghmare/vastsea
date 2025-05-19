@@ -115,6 +115,8 @@ export default function AddProblemPage() {
         tags: values.tags
       };
       
+      console.log('Session user ID:', session.user?.id);
+      
       // Submit to API
       const response = await fetch('/api/problems', {
         method: 'POST',
@@ -130,7 +132,7 @@ export default function AddProblemPage() {
       }
       
       // Navigate to problems page after successful submission
-      router.push('/problems');
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error submitting problem:', error);
       // You could add a toast notification here for error feedback
