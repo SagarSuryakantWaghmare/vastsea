@@ -1,7 +1,15 @@
 import mongoose, { Schema, model, models } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const UserSchema = new Schema({
+interface IUser {
+  name: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
+
+const UserSchema = new Schema<IUser>({
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -30,6 +38,7 @@ const UserSchema = new Schema({
 
 // Hash password before saving
 UserSchema.pre('save', async function(next) {
+  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) return next();
   
   try {
@@ -46,6 +55,7 @@ UserSchema.methods.comparePassword = async function(candidatePassword: string) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = models.User || model('User', UserSchema);
+// Check if the model already exists to prevent recompiling the model during hot reloads
+const User = models.User || model<IUser>('User', UserSchema);
 
 export default User;
