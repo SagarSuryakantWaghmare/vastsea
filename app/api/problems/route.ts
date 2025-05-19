@@ -73,13 +73,21 @@ export async function POST(req: Request) {
     // Connect to database
     await connectToDatabase();
     
+    // Check if user ID exists in the session
+    if (!session.user || !session.user.id) {
+      return NextResponse.json(
+        { error: 'User ID not found in session' },
+        { status: 400 }
+      );
+    }
+    
     // Create new problem
     const problem = await Problem.create({
       title,
       description,
       codes,
       tags,
-      author: session.user.id,
+      author: session.user.id, // This is the MongoDB ObjectId reference to the user
     });
     
     return NextResponse.json({ problem }, { status: 201 });

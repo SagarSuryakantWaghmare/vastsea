@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -45,9 +46,17 @@ const formSchema = z.object({
 
 export default function AddProblemPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    }
+  }, [status, router]);
 
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
@@ -86,18 +95,45 @@ export default function AddProblemPage() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (status !== 'authenticated' || !session) {
+      router.push('/auth/signin');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // In a real app, send data to API
-      console.log(values);
+      // Prepare the data for submission
+      const problemData = {
+        title: values.title,
+        description: values.description,
+        codes: {
+          java: values.javaCode || '',
+          c: values.cCode || '',
+          cpp: values.cppCode || '',
+          js: values.jsCode || ''
+        },
+        tags: values.tags
+      };
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Submit to API
+      const response = await fetch('/api/problems', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(problemData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit problem');
+      }
       
       // Navigate to problems page after successful submission
       router.push('/problems');
     } catch (error) {
       console.error('Error submitting problem:', error);
+      // You could add a toast notification here for error feedback
     } finally {
       setIsSubmitting(false);
     }

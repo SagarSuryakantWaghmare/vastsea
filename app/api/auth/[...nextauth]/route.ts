@@ -3,6 +3,35 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import User from '@/lib/db/models/User';
 import bcrypt from 'bcryptjs';
+import { JWT } from 'next-auth/jwt';
+import { Session } from 'next-auth';
+
+// Define types to extend next-auth
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      createdAt?: string;
+    }
+  }
+  
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    createdAt?: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    createdAt?: string;
+  }
+}
 
 export const authOptions = {
   providers: [
@@ -36,6 +65,7 @@ export const authOptions = {
             id: user._id.toString(),
             email: user.email,
             name: user.name,
+            createdAt: user.createdAt
           };
         } catch (error) {
           console.error('Authentication error:', error);
@@ -45,7 +75,7 @@ export const authOptions = {
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt' as const
   },
   pages: {
     signIn: '/auth/signin',
@@ -55,12 +85,14 @@ export const authOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.createdAt = user.createdAt;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.id = token.id;
+        session.user.createdAt = token.createdAt;
       }
       return session;
     }

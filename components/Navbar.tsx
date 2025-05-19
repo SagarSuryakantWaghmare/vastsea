@@ -89,6 +89,9 @@ const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
@@ -158,6 +161,13 @@ const Navbar = () => {
             </Link>
             {session ? (
               <>
+                <Link
+                  href="/dashboard"
+                  className="px-2 py-1 text-sm font-medium"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
                 <Link
                   href="/add"
                   className="px-2 py-1 text-sm font-medium"

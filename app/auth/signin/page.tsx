@@ -57,7 +57,7 @@ export default function SignInPage() {
       if (result?.error) {
         setError(result.error);
       } else {
-        router.push('/');
+        router.push('/dashboard');
         router.refresh();
       }
     } catch (error) {
