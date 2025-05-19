@@ -1,0 +1,93 @@
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { connectToDatabase } from '@/lib/db/mongodb';
+import Problem from '@/lib/db/models/Problem';
+
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const searchParams = url.searchParams;
+    const query = searchParams.get('query') || '';
+    const language = searchParams.get('language') || '';
+    const tag = searchParams.get('tag') || '';
+    
+    // Connect to database
+    await connectToDatabase();
+    
+    // Build query object
+    const queryObj: any = {};
+    
+    if (query) {
+      queryObj.$or = [
+        { title: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+      ];
+    }
+    
+    if (language) {
+      queryObj[`codes.${language}`] = { $exists: true, $ne: '' };
+    }
+    
+    if (tag) {
+      queryObj.tags = tag;
+    }
+    
+    // Execute query
+    const problems = await Problem.find(queryObj)
+      .sort({ createdAt: -1 })
+      .populate('author', 'name email');
+    
+    return NextResponse.json({ problems });
+  } catch (error) {
+    console.error('Error fetching problems:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch problems' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    // Check authentication
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Parse request body
+    const body = await req.json();
+    const { title, description, codes, tags } = body;
+    
+    // Validate input
+    if (!title || !description) {
+      return NextResponse.json(
+        { error: 'Title and description are required' },
+        { status: 400 }
+      );
+    }
+    
+    // Connect to database
+    await connectToDatabase();
+    
+    // Create new problem
+    const problem = await Problem.create({
+      title,
+      description,
+      codes,
+      tags,
+      author: session.user.id,
+    });
+    
+    return NextResponse.json({ problem }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating problem:', error);
+    return NextResponse.json(
+      { error: 'Failed to create problem' },
+      { status: 500 }
+    );
+  }
+}
