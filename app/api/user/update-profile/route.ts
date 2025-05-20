@@ -5,7 +5,7 @@ import User from '@/lib/db/models/User';
 // Using dynamic import for bcrypt to avoid Edge runtime issues
 // @ts-ignore - We'll handle bcrypt in the route function
 import * as bcrypt from 'bcryptjs';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth-options';
 
 export async function PUT(req: Request) {
   try {
