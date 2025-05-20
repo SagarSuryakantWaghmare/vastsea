@@ -80,8 +80,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt'
   },
   pages: {
-    signIn: '/auth/signin',
-    signUp: '/auth/signup'
+    signIn: '/auth/signin'
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -93,7 +92,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
+        session.user.id = token.id ?? '';
         session.user.createdAt = token.createdAt;
       }
       return session;
