@@ -99,6 +99,6 @@ export function ProblemCard({ problem }: ProblemProps) {
           </CardFooter>
         </Card>
       </motion.div>
-    </Link>
++    </div>
   );
 }
