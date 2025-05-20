@@ -43,6 +43,7 @@ interface UserActivity {
 // Extend the session user type to include createdAt
 declare module "next-auth" {
   interface Session {
+    // Just for fix errors
     // @ts-ignore
     user?: {
       name?: string | null;
