@@ -9,11 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = params;
-    
-    // Connect to database
     await connectToDatabase();
-    
-    // Find problem by ID and populate author
     const problem = await Problem.findById(id).populate('author', 'name email');
     
     if (!problem) {
