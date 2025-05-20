@@ -164,58 +164,43 @@ export default function ProblemsPage() {
       </div>
       
       {/* Problem Cards */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading problems...</p>
-          </div>
-        </div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium mb-2 text-destructive">Error</h3>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
-        </div>
-      ) : (
-        <AnimatePresence>
-          {problems.length > 0 ? (
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              {problems.map((problem) => (
-                <motion.div
-                  key={problem._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ProblemCard problem={problem} />
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              className="text-center py-12"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <h3 className="text-xl font-medium mb-2">No problems found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filters to find what you're looking for.
-              </p>
-              <Button variant="outline" className="mt-4" onClick={clearFilters}>
-                Clear all filters
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
+      <AnimatePresence>
+        {filteredProblems.length > 0 ? (
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {filteredProblems.map((problem) => (
+              <motion.div
+                key={problem.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ProblemCard problem={problem} />
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            className="text-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-xl font-medium mb-2">No problems found</h3>
+            <p className="text-muted-foreground">
+              Try adjusting your search or filters to find what you're looking for.
+            </p>
+            <Button variant="outline" className="mt-4" onClick={clearFilters}>
+              Clear all filters
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
