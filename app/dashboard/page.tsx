@@ -34,6 +34,7 @@ interface Problem {
 }
 
 interface UserActivity {
+  // Dashboard to updated things related to the dashboard
   type: 'problem_created' | 'profile_updated';
   date: string;
   title?: string;
