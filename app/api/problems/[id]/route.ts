@@ -31,7 +31,7 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     // Check authentication
@@ -43,7 +43,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = context.params;
     const body = await req.json();
     const { title, description, codes, tags } = body;
     
