@@ -7,9 +7,12 @@ import type { NextRequest } from 'next/server';
 // Import proper route types for Next.js 15
 import type { RouteSegmentConfig } from 'next/dist/server/app-render/types';
 
+// Define proper types for Next.js route handlers
+type RouteParams = { params: { id: string } }
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     const { id } = params;
@@ -41,7 +44,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Check authentication
@@ -101,7 +104,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Check authentication
