@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import User from '@/lib/db/models/User';
+// @ts-ignore
 import bcrypt from 'bcryptjs';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
