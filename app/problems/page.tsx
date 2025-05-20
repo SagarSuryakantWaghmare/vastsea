@@ -1,37 +1,88 @@
 "use client";
 
-import { useState } from 'react';
-import { dummyProblems } from '@/lib/dummy-data';
+import { useState, useEffect } from 'react';
 import { ProblemCard } from '@/components/ProblemCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, Filter, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const languages = ["All", "Java", "C", "C++", "JavaScript"];
-const tags = ["All", "array", "string", "math", "dynamic-programming", "recursion", "stack", "linked-list", "easy", "medium", "hard"];
+const languages = ["All", "java", "c", "cpp", "js"];
+const languageDisplayNames: Record<string, string> = {
+  java: "Java",
+  c: "C",
+  cpp: "C++",
+  js: "JavaScript",
+  All: "All"
+};
+
+interface Problem {
+  _id: string;
+  title: string;
+  description: string;
+  codes: {
+    java?: string;
+    c?: string;
+    cpp?: string;
+    js?: string;
+    [key: string]: string | undefined;
+  };
+  tags: string[];
+  author?: {
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+}
 
 export default function ProblemsPage() {
+  const [problems, setProblems] = useState<Problem[]>([]);
+  const [allTags, setAllTags] = useState<string[]>(["All"]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
   const [selectedTag, setSelectedTag] = useState('All');
-  
-  // Filter problems based on search, language, and tag
-  const filteredProblems = dummyProblems.filter(problem => {
-    // Search filter
-    const matchesSearch = problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          problem.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Language filter
-    const matchesLanguage = selectedLanguage === 'All' || 
-                            (problem.codes[selectedLanguage.toLowerCase() as keyof typeof problem.codes] !== undefined);
-    
-    // Tag filter
-    const matchesTag = selectedTag === 'All' || problem.tags.includes(selectedTag.toLowerCase());
-    
-    return matchesSearch && matchesLanguage && matchesTag;
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch problems from API
+  useEffect(() => {
+    const fetchProblems = async () => {
+      setIsLoading(true);
+      try {
+        // Build query params
+        const params = new URLSearchParams();
+        if (searchQuery) params.append('query', searchQuery);
+        if (selectedLanguage !== 'All') params.append('language', selectedLanguage);
+        if (selectedTag !== 'All') params.append('tag', selectedTag);
+        
+        const response = await fetch(`/api/problems?${params.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch problems');
+        }
+        
+        const data = await response.json();
+        setProblems(data.problems);
+        
+        // Extract all unique tags for filter
+        const uniqueTags = new Set<string>();
+        uniqueTags.add('All');
+        data.problems.forEach((problem: Problem) => {
+          problem.tags.forEach(tag => uniqueTags.add(tag));
+        });
+        setAllTags(Array.from(uniqueTags));
+        
+      } catch (error) {
+        console.error('Error fetching problems:', error);
+        setError('Failed to load problems. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProblems();
+  }, [searchQuery, selectedLanguage, selectedTag]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -85,7 +136,7 @@ export default function ProblemsPage() {
                   className="cursor-pointer"
                   onClick={() => setSelectedLanguage(language)}
                 >
-                  {language}
+                  {languageDisplayNames[language]}
                 </Badge>
               ))}
             </div>
@@ -97,7 +148,7 @@ export default function ProblemsPage() {
               <span className="text-sm font-medium">Tags:</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {tags.map(tag => (
+              {allTags.map(tag => (
                 <Badge 
                   key={tag}
                   variant={selectedTag === tag ? "default" : "outline"}
@@ -113,43 +164,58 @@ export default function ProblemsPage() {
       </div>
       
       {/* Problem Cards */}
-      <AnimatePresence>
-        {filteredProblems.length > 0 ? (
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            {filteredProblems.map((problem) => (
-              <motion.div
-                key={problem.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ProblemCard problem={problem} />
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            className="text-center py-12"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <h3 className="text-xl font-medium mb-2">No problems found</h3>
-            <p className="text-muted-foreground">
-              Try adjusting your search or filters to find what you're looking for.
-            </p>
-            <Button variant="outline" className="mt-4" onClick={clearFilters}>
-              Clear all filters
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading problems...</p>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium mb-2 text-destructive">Error</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      ) : (
+        <AnimatePresence>
+          {problems.length > 0 ? (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {problems.map((problem) => (
+                <motion.div
+                  key={problem._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ProblemCard problem={problem} />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h3 className="text-xl font-medium mb-2">No problems found</h3>
+              <p className="text-muted-foreground">
+                Try adjusting your search or filters to find what you're looking for.
+              </p>
+              <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                Clear all filters
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   );
 }

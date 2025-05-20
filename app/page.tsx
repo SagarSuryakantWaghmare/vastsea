@@ -8,8 +8,6 @@ import Problem from '@/lib/db/models/Problem';
 async function getProblems() {
   try {
     await connectToDatabase();
-    
-    // Get the latest problems
     const problems = await Problem.find({})
       .sort({ createdAt: -1 })
       .limit(6)
