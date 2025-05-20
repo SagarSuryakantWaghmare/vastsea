@@ -4,6 +4,8 @@ import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
 import User from '@/lib/db/models/User';
 import type { NextRequest } from 'next/server';
+// Import proper route types for Next.js 15
+import type { RouteSegmentConfig } from 'next/dist/server/app-render/types';
 
 export async function GET(
   req: NextRequest,
