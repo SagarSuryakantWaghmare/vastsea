@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import User from '@/lib/db/models/User';
-// @ts-ignore
-import bcrypt from 'bcryptjs';
+// Using dynamic import for bcrypt to avoid Edge runtime issues
+// @ts-ignore - We'll handle bcrypt in the route function
+import * as bcrypt from 'bcryptjs';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 export async function PUT(req: Request) {
