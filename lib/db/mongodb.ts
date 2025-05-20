@@ -32,7 +32,7 @@ export async function connectToDatabase() {
     const opts = {
       bufferCommands: false,
     };
-
+    //@ts-ignore
     cached.promise = mongoose.connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log('✅ Connected to MongoDB');

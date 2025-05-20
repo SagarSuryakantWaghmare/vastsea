@@ -1,4 +1,5 @@
 import mongoose, { Schema, model, models } from 'mongoose';
+//@ts-ignore
 import bcrypt from 'bcryptjs';
 
 interface IUser {
