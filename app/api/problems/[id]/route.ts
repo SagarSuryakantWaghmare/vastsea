@@ -4,18 +4,13 @@ import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
 import User from '@/lib/db/models/User';
 import type { NextRequest } from 'next/server';
-// Import proper route types for Next.js 15
-import type { RouteSegmentConfig } from 'next/dist/server/app-render/types';
-
-// Define proper types for Next.js route handlers
-type RouteParams = { params: { id: string } }
 
 export async function GET(
   req: NextRequest,
-  { params }: RouteParams
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     await connectToDatabase();
     
     // Ensure User model is registered before population
@@ -44,7 +39,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: RouteParams
+  context: { params: { id: string } }
 ) {
   try {
     // Check authentication
@@ -56,7 +51,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = context.params;
     const body = await req.json();
     const { title, description, codes, tags } = body;
     
@@ -104,7 +99,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: RouteParams
+  context: { params: { id: string } }
 ) {
   try {
     // Check authentication
@@ -116,7 +111,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = context.params;
     
     // Connect to database
     await connectToDatabase();
