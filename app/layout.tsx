@@ -11,6 +11,14 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'VastSea - Coding Problems & Solutions',
   description: 'A modern platform for sharing and learning programming problems and solutions',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon', sizes: '32x32' },
+    ],
+    apple: { url: '/apple-icon' },
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
