@@ -3,16 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Car                {availableLanguages.map(lang => (
-                  <TabsContent key={lang.value} value={lang.value} className="mt-4 rounded-lg">
-                    <CodeBlock
-                      code={problem.codes[lang.value] || '// No code available for this language'}
-                      language={lang.value === 'js' ? 'javascript' : lang.value}
-                    />
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </div>tent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import CodeBlock from '@/components/CodeBlock';
 import { motion } from 'framer-motion';
@@ -84,12 +75,18 @@ export default function ProblemPage() {
   
   if (isLoading) {
     return (
-      <div className="container py-10">
-        <div className="flex items-center justify-center h-64">
+      <div className="w-full py-16">
+        <div className="flex items-center justify-center h-64 max-w-4xl mx-auto">
           <div className="text-center">
-            <div className="animate-pulse flex flex-col items-center gap-4">
-              <div className="h-8 bg-gray-200 rounded w-80"></div>
-              <div className="h-4 bg-gray-200 rounded w-40"></div>
+            <div className="animate-pulse flex flex-col items-center gap-6">
+              <div className="h-10 bg-accent/60 rounded-full w-96"></div>
+              <div className="h-6 bg-accent/40 rounded-full w-60"></div>
+              <div className="grid grid-cols-3 gap-4 mt-4 w-full">
+                <div className="h-32 bg-muted rounded-xl col-span-3"></div>
+                <div className="h-8 bg-muted/70 rounded-full"></div>
+                <div className="h-8 bg-muted/70 rounded-full"></div>
+                <div className="h-8 bg-muted/70 rounded-full"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -99,11 +96,11 @@ export default function ProblemPage() {
   
   if (error || !problem) {
     return (
-      <div className="container py-10">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
+      <div className="w-full py-16">
+        <div className="flex items-center justify-center h-64 max-w-4xl mx-auto px-4">
+          <div className="text-center bg-accent/20 p-10 rounded-xl border border-accent/30 shadow-lg">
             <h2 className="text-2xl font-bold">Problem not found</h2>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-4">
               {error || "The problem you're looking for doesn't exist or has been removed."}
             </p>
           </div>
@@ -134,24 +131,27 @@ export default function ProblemPage() {
   };
 
   return (
-    <div className="container py-10">
+    <div className="w-full py-10 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border shadow-sm bg-card">
-          <CardHeader>
-            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+        <Card className="border shadow-lg bg-card/60 backdrop-blur-sm max-w-4xl mx-auto">
+          <CardHeader className="pb-6">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
               <div>
-                <CardTitle className="text-3xl font-bold">{problem.title}</CardTitle>
+                <div className="relative inline-block">
+                  <CardTitle className="text-3xl font-bold relative z-10">{problem.title}</CardTitle>
+                  <span className="absolute bottom-1 left-0 w-full h-3 bg-primary/10 -z-0"></span>
+                </div>
                 {problem.author && (
-                  <div className="mt-2 flex items-center gap-2">
+                  <div className="mt-3 flex items-center gap-2">
                     <User className="h-4 w-4 text-primary" />
                     <span className="font-medium">{problem.author.name}</span>
                   </div>
                 )}
-                <CardDescription className="mt-2 flex items-center gap-2">
+                <CardDescription className="mt-3 flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   <span>
                     {problem.createdAt ? formatDistanceToNow(new Date(problem.createdAt), { addSuffix: true }) : 'Recently added'}
@@ -160,28 +160,28 @@ export default function ProblemPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {problem.tags.map(tag => (
-                  <Badge key={tag} variant="secondary">{tag}</Badge>
+                  <Badge key={tag} variant="secondary" className="px-3 py-1 rounded-full text-sm">{tag}</Badge>
                 ))}
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-8">
+          <CardContent className="space-y-10">
             {/* Problem Description */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold flex items-center gap-2">
-                <Tag className="h-5 w-5" />
-                Problem Description
+            <div className="space-y-5">
+              <h3 className="text-xl font-semibold flex items-center gap-3 pb-2 border-b">
+                <Tag className="h-5 w-5 text-primary" />
+                <span>Problem Description</span>
               </h3>
-              <div className="prose dark:prose-invert">
-                <p>{problem.description}</p>
+              <div className="prose dark:prose-invert max-w-none">
+                <p className="text-base leading-relaxed">{problem.description}</p>
               </div>
             </div>
             
             {/* Code Solutions */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold flex items-center gap-2">
-                <Code className="h-5 w-5" />
-                Solution
+            <div className="space-y-5">
+              <h3 className="text-xl font-semibold flex items-center gap-3 pb-2 border-b">
+                <Code className="h-5 w-5 text-primary" />
+                <span>Solution</span>
               </h3>
               
               <Tabs 
@@ -190,12 +190,12 @@ export default function ProblemPage() {
                 onValueChange={setActiveLanguage}
                 className="w-full"
               >
-                <TabsList className="w-full justify-start overflow-auto">
+                <TabsList className="w-full justify-start overflow-auto bg-background/50">
                   {availableLanguages.map(lang => (
                     <TabsTrigger 
                       key={lang.value} 
                       value={lang.value}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 data-[state=active]:bg-primary/10"
                     >
                       <div 
                         className={`h-3 w-3 rounded-full bg-gradient-to-r ${languageColors[lang.value] || 'from-gray-500 to-gray-700'}`}
@@ -206,10 +206,10 @@ export default function ProblemPage() {
                 </TabsList>
                 
                 {availableLanguages.map(lang => (
-                  <TabsContent key={lang.value} value={lang.value} className="mt-4 rounded-lg">
+                  <TabsContent key={lang.value} value={lang.value} className="mt-6 rounded-xl overflow-hidden border border-border/50 shadow-sm bg-muted/30">
                     <CodeBlock 
-                      code={problem.codes[lang.value as keyof typeof problem.codes] || ''} 
-                      language={lang.value === 'cpp' ? 'cpp' : lang.value}
+                      code={problem.codes[lang.value as keyof typeof problem.codes] || '// No code available for this language'} 
+                      language={lang.value === 'js' ? 'javascript' : lang.value}
                     />
                   </TabsContent>
                 ))}

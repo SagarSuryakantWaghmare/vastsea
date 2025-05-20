@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { motion } from 'framer-motion';
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -68,23 +67,38 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="container py-10">
+    <div className="w-full py-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md mx-auto"
+        className="max-w-md mx-auto px-4"
       >
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Enter your email and password to access your account
-            </CardDescription>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text mb-2">Join VastSea</h1>
+          <p className="text-muted-foreground">Contribute to our coding community</p>
+        </div>
+        
+        <Card className="border-primary/10 shadow-lg">
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-center border-b pb-4">
+              <Link 
+                href="/auth/signin" 
+                className="px-4 py-2 font-medium border-b-2 border-primary text-primary"
+              >
+                Sign In
+              </Link>
+              <Link 
+                href="/auth/signup" 
+                className="px-4 py-2 font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                Create Account
+              </Link>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 <FormField
                   control={form.control}
                   name="email"
@@ -92,7 +106,11 @@ export default function SignInPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your email" {...field} />
+                        <Input 
+                          placeholder="Enter your email" 
+                          className="rounded-lg h-11" 
+                          {...field} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -109,6 +127,7 @@ export default function SignInPage() {
                         <Input 
                           type="password" 
                           placeholder="Enter your password" 
+                          className="rounded-lg h-11"
                           {...field} 
                         />
                       </FormControl>
@@ -118,26 +137,27 @@ export default function SignInPage() {
                 />
 
                 {error && (
-                  <div className="text-sm text-destructive">{error}</div>
+                  <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{error}</div>
                 )}
 
                 <Button 
                   type="submit" 
-                  className="w-full"
+                  className="w-full rounded-lg h-11 bg-gradient-to-r from-blue-600 to-teal-500 hover:shadow-md hover:shadow-primary/20 text-white transition-all"
                   disabled={isLoading}
                 >
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
 
-                <p className="text-sm text-center text-muted-foreground">
-                  Don't have an account?{' '}
-                  <Link 
-                    href="/auth/signup" 
-                    className="text-primary hover:underline"
-                  >
-                    Sign Up
-                  </Link>
-                </p>
+                <div className="relative mt-6 pt-6 border-t text-center">
+                  <span className="bg-background px-2 text-xs text-muted-foreground absolute -top-2 left-1/2 -translate-x-1/2">
+                    or continue with
+                  </span>
+                  <div className="flex justify-center space-x-4 mt-4">
+                    <Button variant="outline" size="icon" className="rounded-full w-10 h-10">G</Button>
+                    <Button variant="outline" size="icon" className="rounded-full w-10 h-10">X</Button>
+                    <Button variant="outline" size="icon" className="rounded-full w-10 h-10">M</Button>
+                  </div>
+                </div>
               </form>
             </Form>
           </CardContent>
