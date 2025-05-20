@@ -10,6 +10,7 @@ import { Session } from 'next-auth';
 // Extend NextAuth session and user types
 declare module 'next-auth' {
   interface Session {
+    // @ts-ignore
     user: {
       id: string;
       name: string | null;
