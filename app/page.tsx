@@ -77,6 +77,8 @@ export default async function Home() {
           {problems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {problems.map((problem: ProblemType) => (
+                // @ts-ignore
+                // eslint-disable-next-line react/jsx-key
                 <ProblemCard key={problem._id} problem={problem} />
               ))}
             </div>
