@@ -5,7 +5,19 @@ import { ProblemCard } from '@/components/ProblemCard';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
 
-async function getProblems() {
+type ProblemType = {
+  _id: string;
+  title: string;
+  description: string;
+  author?: {
+    name?: string;
+    email?: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
+};
+
+async function getProblems(): Promise<ProblemType[]> {
   try {
     await connectToDatabase();
     const problems = await Problem.find({})
@@ -53,21 +65,18 @@ export default async function Home() {
         {/* Featured Problems */}
         <section className="space-y-8 px-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h2 className="text-3xl font-bold tracking-tight relative">
-              <span className="relative z-10">Featured Problems</span>
-              <span className="absolute bottom-0 left-0 w-1/2 h-3 bg-blue-500/20 -z-0"></span>
-            </h2>
-            <Button asChild variant="ghost" className="rounded-full hover:bg-accent/50">
-              <Link href="/problems" className="flex items-center gap-2">
-                View all
-                <ArrowRight className="h-4 w-4" />
+            <h2 className="text-3xl font-bold tracking-tight">Featured Problems</h2>
+            <Button asChild variant="ghost" className="group">
+              <Link href="/problems">
+                View all problems
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
           </div>
           
           {problems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {problems.map((problem) => (
+              {problems.map((problem: ProblemType) => (
                 <ProblemCard key={problem._id} problem={problem} />
               ))}
             </div>
