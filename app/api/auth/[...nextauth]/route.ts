@@ -1,13 +1,14 @@
-import NextAuth from 'next-auth';
+import NextAuth, { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import User from '@/lib/db/models/User';
+// @ts-ignore
 import bcrypt from 'bcryptjs';
 import { JWT } from 'next-auth/jwt';
 import { Session } from 'next-auth';
 
-// Define types to extend next-auth
-declare module "next-auth" {
+// Extend NextAuth session and user types
+declare module 'next-auth' {
   interface Session {
     user: {
       id?: string;
@@ -15,9 +16,9 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       createdAt?: string;
-    }
+    };
   }
-  
+
   interface User {
     id: string;
     name: string;
@@ -26,20 +27,21 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     id?: string;
     createdAt?: string;
   }
 }
 
-export const authOptions = {
+// Auth options
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
         try {
@@ -48,15 +50,15 @@ export const authOptions = {
           }
 
           await connectToDatabase();
-          
+
           const user = await User.findOne({ email: credentials.email }).select('+password');
-          
+
           if (!user) {
             throw new Error('Invalid email or password');
           }
-          
+
           const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
-          
+
           if (!isPasswordMatch) {
             throw new Error('Invalid email or password');
           }
@@ -69,13 +71,13 @@ export const authOptions = {
           };
         } catch (error) {
           console.error('Authentication error:', error);
-          throw error;
+          throw new Error('Authentication failed');
         }
       }
     })
   ],
   session: {
-    strategy: 'jwt' as const
+    strategy: 'jwt'
   },
   pages: {
     signIn: '/auth/signin',
@@ -97,9 +99,10 @@ export const authOptions = {
       return session;
     }
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET
 };
 
+// Handler for API route
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

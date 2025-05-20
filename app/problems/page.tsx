@@ -90,6 +90,9 @@ export default function ProblemsPage() {
     setSelectedTag('All');
   };
 
+  // Since we're doing filtering in the API call, we can use problems directly
+  // We just need to check if we're still loading or if there was an error
+  
   return (
     <div className="container py-10">
       {/* Header */}
@@ -165,16 +168,39 @@ export default function ProblemsPage() {
       
       {/* Problem Cards */}
       <AnimatePresence>
-        {filteredProblems.length > 0 ? (
+        {isLoading ? (
+          <motion.div
+            className="flex justify-center items-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-lg">Loading problems...</span>
+          </motion.div>
+        ) : error ? (
+          <motion.div
+            className="text-center py-12 text-red-500"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-xl font-medium mb-2">Error</h3>
+            <p>{error}</p>
+            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+              Try again
+            </Button>
+          </motion.div>
+        ) : problems.length > 0 ? (
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            {filteredProblems.map((problem) => (
+            {problems.map((problem) => (
               <motion.div
-                key={problem.id}
+                key={problem._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
