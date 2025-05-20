@@ -5,10 +5,10 @@ import Problem from '@/lib/db/models/Problem';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     await connectToDatabase();
     const problem = await Problem.findById(id).populate('author', 'name email');
     

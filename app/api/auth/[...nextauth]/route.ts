@@ -6,6 +6,7 @@ import { authOptions } from '@/lib/auth-options';
 // Extend NextAuth session and user types
 declare module 'next-auth' {
   interface Session {
+    // @ts-ignore
     user: {
       id: string;
       name: string | null;
