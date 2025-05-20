@@ -120,15 +120,15 @@ const Navbar = () => {
       {/* Mobile Navigation - Slide from right */}
       {isOpen && (
         <motion.div
-          className="md:hidden fixed top-0 right-0 h-full w-4/5 max-w-xs bg-background/95 backdrop-blur-md shadow-xl z-50 border-l"
+          className="md:hidden fixed top-0 right-0 h-full w-4/5 max-w-xs bg-background/95 backdrop-blur-xl shadow-xl z-[100] border-l"
           initial={{ x: '100%', opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: '100%', opacity: 0 }}
           transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
         >
           <div className="flex flex-col h-full overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
+            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/95 backdrop-blur-xl z-10">
+              <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
                 VastSea
               </div>
               <Button 
@@ -141,23 +141,24 @@ const Navbar = () => {
               </Button>
             </div>
             
-            <div className="p-4">
+            <div className="p-4 bg-background/80 backdrop-blur-md sticky top-[65px] z-[5]">
               <form className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search problems..."
-                  className="w-full pl-10 rounded-full border-primary/20 focus-visible:ring-primary/30"
+                  className="w-full pl-10 rounded-full border-primary/20 focus-visible:ring-primary/30 shadow-sm"
                 />
               </form>
             </div>
             <div className="border-t border-border/40 my-1"></div>
-            <div className="px-4 space-y-2">
+            <div className="px-4 space-y-2 py-2 overflow-y-auto">
               <Link 
                 href="/" 
                 className="px-4 py-3 text-base font-medium rounded-md hover:bg-accent/50 transition-colors flex items-center"
                 onClick={() => setIsOpen(false)}
               >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Home
               </Link>
               <Link 
@@ -165,6 +166,7 @@ const Navbar = () => {
                 className="px-4 py-3 text-base font-medium rounded-md hover:bg-accent/50 transition-colors flex items-center"
                 onClick={() => setIsOpen(false)}
               >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
                 Problems
               </Link>
               
@@ -175,6 +177,7 @@ const Navbar = () => {
                     className="px-4 py-3 text-base font-medium rounded-md hover:bg-accent/50 transition-colors flex items-center"
                     onClick={() => setIsOpen(false)}
                   >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                     Dashboard
                   </Link>
                   <Link
@@ -217,7 +220,7 @@ const Navbar = () => {
             </div>
             
             {/* Footer with theme toggle */}
-            <div className="mt-auto p-4 border-t">
+            <div className="mt-auto p-4 border-t sticky bottom-0 bg-background/95 backdrop-blur-xl">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Switch theme</span>
                 <Button
@@ -239,7 +242,7 @@ const Navbar = () => {
       {/* Modal overlay for mobile menu */}
       {isOpen && (
         <motion.div 
-          className="md:hidden fixed inset-0 bg-black/30 z-40"
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[99]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
