@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
+import User from '@/lib/db/models/User';
 import { authOptions } from '@/lib/auth-options';
 
 export async function GET(req: Request) {
@@ -17,6 +18,11 @@ export async function GET(req: Request) {
     
     // Connect to database
     await connectToDatabase();
+    
+    // Ensure User model is registered before population
+    if (User) {
+      console.log("User model registered for population");
+    }
     
     // Build query object
     const queryObj: any = {};

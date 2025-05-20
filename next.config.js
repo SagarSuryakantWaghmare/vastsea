@@ -8,6 +8,9 @@ const nextConfig = {
     unoptimized: true,
     remotePatterns: [], // Add any remote image patterns here if needed
   },
+  experimental: {
+    metadata: true,
+  },
 };
 
 module.exports = nextConfig;

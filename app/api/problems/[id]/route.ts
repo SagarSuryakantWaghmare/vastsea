@@ -2,14 +2,22 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
+import User from '@/lib/db/models/User';
+import type { NextRequest } from 'next/server';
 
 export async function GET(
-  req: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     await connectToDatabase();
+    
+    // Ensure User model is registered before population
+    if (User) {
+      console.log("User model registered for single problem");
+    }
+    
     const problem = await Problem.findById(id).populate('author', 'name email');
     
     if (!problem) {
@@ -30,8 +38,8 @@ export async function GET(
 }
 
 export async function PUT(
-  req: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     // Check authentication
@@ -43,7 +51,7 @@ export async function PUT(
       );
     }
 
-    const { id } = context.params;
+    const { id } = params;
     const body = await req.json();
     const { title, description, codes, tags } = body;
     
@@ -90,7 +98,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ProblemCard } from '@/components/ProblemCard';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
+import User from '@/lib/db/models/User';
 
 type ProblemType = {
   _id: string;
@@ -20,6 +21,13 @@ type ProblemType = {
 async function getProblems(): Promise<ProblemType[]> {
   try {
     await connectToDatabase();
+    
+    // Ensure User model is loaded before populating
+    // This makes sure the model is registered before we try to populate with it
+    if (User) {
+      console.log("User model registered successfully");
+    }
+    
     const problems = await Problem.find({})
       .sort({ createdAt: -1 })
       .limit(6)

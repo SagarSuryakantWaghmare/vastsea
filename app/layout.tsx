@@ -1,23 +1,16 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SessionProvider } from '@/components/session-provider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'VastSea - Coding Problems & Solutions',
   description: 'A modern platform for sharing and learning programming problems and solutions',
-  icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon', sizes: '32x32' },
-    ],
-    apple: { url: '/apple-icon' },
-  },
   manifest: '/manifest.json',
 };
 
