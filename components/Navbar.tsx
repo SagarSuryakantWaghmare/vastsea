@@ -126,7 +126,7 @@ const Navbar = () => {
           exit={{ x: '100%', opacity: 0 }}
           transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
         >
-          <div className="flex flex-col h-full overflow-y-auto">
+          <div className="flex flex-col h-full z-[100]">
             <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/95 backdrop-blur-xl z-10">
               <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
                 VastSea
