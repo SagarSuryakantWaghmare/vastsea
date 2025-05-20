@@ -45,7 +45,7 @@ export function ProblemCard({ problem }: ProblemProps) {
     : '';
   
   return (
-    <Link href={`/problems/${problemId}`}>
+    <div>
       <motion.div
         whileHover={{ y: -5 }}
         whileTap={{ y: 0 }}
