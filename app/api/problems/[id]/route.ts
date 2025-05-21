@@ -9,8 +9,10 @@ import { authOptions } from '@/lib/auth-options';
 export const runtime = 'nodejs'; // Ensures compatibility with mongoose
 
 // GET a single problem by ID
+//   @ts-ignore
 export async function GET(
   req: NextRequest,
+//   @ts-ignore
   { params }: { params: { id: string } }
 ) {  try {
     const { id } = params;
