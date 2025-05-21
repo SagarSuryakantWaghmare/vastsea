@@ -1,0 +1,204 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { notFound } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, Loader2, Clock, User, Tag } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import CodeBlock from '@/components/CodeBlock';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Link from 'next/link';
+
+// Define the interface for problem data
+interface Problem {
+  _id: string;
+  title: string;
+  description: string;
+  codes: {
+    java?: string;
+    c?: string;
+    cpp?: string;
+    js?: string;
+    [key: string]: string | undefined;
+  };
+  tags: string[];
+  author?: {
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+}
+
+interface LanguageMap {
+  [key: string]: string;
+}
+
+const languageDisplayNames: LanguageMap = {
+  java: "Java",
+  c: "C",
+  cpp: "C++",
+  js: "JavaScript"
+};
+
+export default function ProblemPage({ params }: { params: { id: string } }) {
+  const [problem, setProblem] = useState<Problem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeLanguage, setActiveLanguage] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchProblem = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/problems/${params.id}`, {
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            notFound();
+          }
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setProblem(data);
+        
+        // Set the first available language as active
+        if (data.codes) {
+          const availableLanguages = Object.keys(data.codes).filter(lang => data.codes[lang]);
+          if (availableLanguages.length > 0) {
+            setActiveLanguage(availableLanguages[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching problem:', err);
+        setError('Failed to load problem details.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProblem();
+  }, [params.id]);
+
+  if (isLoading) {
+    return (
+      <div className="container py-10 flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading problem details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !problem) {
+    return (
+      <div className="container py-10">
+        <div className="space-y-4 text-center">
+          <h1 className="text-2xl font-bold text-red-500">Error Loading Problem</h1>
+          <p className="text-muted-foreground">{error || 'Problem not found'}</p>
+          <Button asChild>
+            <Link href="/problems">Back to problems</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Get available language codes
+  const availableLanguages = Object.keys(problem.codes || {}).filter(lang => problem.codes[lang]);
+  
+  // Format the creation date
+  const formattedDate = problem.createdAt 
+    ? formatDistanceToNow(new Date(problem.createdAt), { addSuffix: true })
+    : '';
+
+  return (
+    <div className="container py-8">
+      {/* Back button */}
+      <div className="mb-8">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/problems" className="flex items-center">
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            Back to problems
+          </Link>
+        </Button>
+      </div>
+      
+      {/* Problem header */}
+      <div className="space-y-6 mb-8">
+        <h1 className="text-3xl sm:text-4xl font-bold">{problem.title}</h1>
+        
+        <div className="flex flex-wrap gap-2 items-center">
+          {problem.author && (
+            <div className="flex items-center text-sm text-muted-foreground">
+              <User className="h-4 w-4 mr-1" />
+              <span>{problem.author.name}</span>
+            </div>
+          )}
+          
+          {formattedDate && (
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Clock className="h-4 w-4 mr-1" />
+              <span>{formattedDate}</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          {problem.tags.map((tag) => (
+            <Badge key={tag} variant="outline">
+              <Tag className="h-3 w-3 mr-1" />
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      </div>
+      
+      {/* Problem description */}
+      <div className="prose prose-stone dark:prose-invert max-w-none mb-10">
+        <h2 className="text-2xl font-semibold mb-4">Description</h2>
+        <div className="whitespace-pre-line">{problem.description}</div>
+      </div>
+      
+      {/* Code solutions */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold">Solutions</h2>
+        
+        {availableLanguages.length > 0 ? (
+          <Tabs 
+            defaultValue={activeLanguage || availableLanguages[0]} 
+            onValueChange={setActiveLanguage as (value: string) => void}
+            className="w-full"
+          >
+            <TabsList className="mb-4">
+              {availableLanguages.map((language) => (
+                <TabsTrigger key={language} value={language}>
+                  {languageDisplayNames[language] || language}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            {availableLanguages.map((language) => (
+              <TabsContent key={language} value={language}>
+                {activeLanguage && problem.codes[activeLanguage] && (
+                  <CodeBlock 
+                    code={problem.codes[activeLanguage] || ''} 
+                    language={activeLanguage} 
+                  />
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
+        ) : (
+          <div className="text-muted-foreground bg-muted p-4 rounded-lg">
+            No code solutions available for this problem.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -51,6 +51,8 @@ export function ProblemCard({ problem }: ProblemProps) {
         whileTap={{ y: 0 }}
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
+        onClick={() => window.location.href = `/problems/${problemId}`}
+        className="cursor-pointer"
       >
         <Card className="h-full overflow-hidden border border-border hover:border-primary/20 transition-all hover:shadow-lg hover:shadow-primary/5 relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />

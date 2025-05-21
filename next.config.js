@@ -7,13 +7,16 @@ const nextConfig = {
   images: {
     remotePatterns: [], // Add any remote image patterns here if needed
   },
-  // Metadata configuration for Next.js 15
-  metadata: {
-    metadataBase: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  },
-  // Improved production performance settings
+  // Next.js 15 no longer needs the metadata experimental flag
+  // And swcMinify is enabled by default
   productionBrowserSourceMaps: false,
-  swcMinify: true,
+  // Disable tracing to avoid permission issues on Windows
+  output: 'standalone',
+  // Set the distDir to a custom directory to avoid permission issues
+  distDir: 'build',
+  generateBuildId: async () => {
+    return `build-${new Date().getTime()}`;
+  },
 };
 
 module.exports = nextConfig;
