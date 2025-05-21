@@ -1,17 +1,30 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SessionProvider } from '@/components/session-provider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Inter } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#14b8a6',
+};
 
 export const metadata: Metadata = {
-  title: 'VastSea - Coding Problems & Solutions',
+  title: {
+    default: 'VastSea - Coding Problems & Solutions',
+    template: '%s | VastSea',
+  },
   description: 'A modern platform for sharing and learning programming problems and solutions',
   manifest: '/manifest.json',
+  authors: [{ name: 'VastSea Team' }],
+  keywords: ['programming', 'coding', 'problems', 'solutions', 'algorithms', 'Java', 'JavaScript', 'C++', 'C'],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
 };
 
 export default function RootLayout({

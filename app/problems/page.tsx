@@ -56,7 +56,11 @@ export default function ProblemsPage() {
         if (selectedLanguage !== 'All') params.append('language', selectedLanguage);
         if (selectedTag !== 'All') params.append('tag', selectedTag);
         
-        const response = await fetch(`/api/problems?${params.toString()}`);
+        // Use relative URL which works in both development and production
+        const response = await fetch(`/api/problems?${params.toString()}`, {
+          // Add cache: 'no-store' to prevent caching issues in production
+          cache: 'no-store',
+        });
         
         if (!response.ok) {
           throw new Error('Failed to fetch problems');

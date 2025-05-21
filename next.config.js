@@ -1,16 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Removed 'output: export' to support middleware
+  // Configured for production deployment with Next.js 15
   eslint: {
     ignoreDuringBuilds: true,
   },
   images: {
-    unoptimized: true,
     remotePatterns: [], // Add any remote image patterns here if needed
   },
-  experimental: {
-    metadata: true,
+  // Metadata is no longer experimental in Next.js 15
+  metadata: {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   },
+  // Improved production performance settings
+  productionBrowserSourceMaps: false,
+  swcMinify: true,
 };
 
 module.exports = nextConfig;

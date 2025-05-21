@@ -5,6 +5,9 @@ import Problem from '@/lib/db/models/Problem';
 import User from '@/lib/db/models/User';
 import { authOptions } from '@/lib/auth-options';
 
+// Specify runtime configuration for this API route
+export const runtime = 'nodejs'; // Ensures compatibility with mongoose
+
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
