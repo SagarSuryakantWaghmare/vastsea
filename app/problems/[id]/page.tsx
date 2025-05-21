@@ -41,7 +41,12 @@ const languageDisplayNames: LanguageMap = {
   js: "JavaScript"
 };
 
-export default function ProblemPage({ params }: { params: { id: string } }) {
+// In Next.js 15, params is a Promise
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function ProblemPage({ params }: PageProps) {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
