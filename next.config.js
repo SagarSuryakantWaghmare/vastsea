@@ -7,9 +7,9 @@ const nextConfig = {
   images: {
     remotePatterns: [], // Add any remote image patterns here if needed
   },
-  // Metadata is no longer experimental in Next.js 15
+  // Metadata configuration for Next.js 15
   metadata: {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+    metadataBase: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   },
   // Improved production performance settings
   productionBrowserSourceMaps: false,

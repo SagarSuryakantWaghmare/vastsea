@@ -11,10 +11,9 @@ export const runtime = 'nodejs'; // Ensures compatibility with mongoose
 // GET a single problem by ID
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
-) {
-  try {
-    const { id } = context.params;
+  { params }: { params: { id: string } }
+) {  try {
+    const { id } = params;
     
     await connectToDatabase();
     
@@ -48,10 +47,10 @@ export async function GET(
 // PUT to update a problem
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     const session = await getServerSession(authOptions);
     
     if (!session) {
@@ -105,10 +104,10 @@ export async function PUT(
 // DELETE a problem
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     const session = await getServerSession(authOptions);
     
     if (!session) {
