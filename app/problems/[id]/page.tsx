@@ -46,12 +46,16 @@ export default function ProblemPage({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeLanguage, setActiveLanguage] = useState<string | null>(null);
-  
   useEffect(() => {
     const fetchProblem = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/problems/${params.id}`, {
+        // In Next.js 15, params need to be awaited
+        const resolvedParams = await params;
+        const id = resolvedParams.id;
+        
+        // Using the simplified API route with query parameter instead of dynamic route
+        const response = await fetch(`/api/problems?id=${id}`, {
           cache: 'no-store',
         });
 
@@ -81,7 +85,7 @@ export default function ProblemPage({ params }: { params: { id: string } }) {
     };
 
     fetchProblem();
-  }, [params.id]);
+  }, [params]);
 
   if (isLoading) {
     return (

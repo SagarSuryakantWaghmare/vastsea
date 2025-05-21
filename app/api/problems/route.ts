@@ -12,6 +12,42 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const searchParams = url.searchParams;
+    
+    // Check if we're requesting a specific problem by ID
+    const id = searchParams.get('id');
+    if (id) {
+      // This is a request for a specific problem
+      await connectToDatabase();
+      
+      // Ensure User model is registered before population
+      if (User) {
+        console.log("User model registered for population");
+      }
+      
+      try {
+        const problem = await Problem.findById(id).populate({
+          path: 'author',
+          select: 'name email'
+        });
+        
+        if (!problem) {
+          return NextResponse.json(
+            { error: 'Problem not found' },
+            { status: 404 }
+          );
+        }
+        
+        return NextResponse.json(problem);
+      } catch (error) {
+        console.error('Error fetching problem by ID:', error);
+        return NextResponse.json(
+          { error: 'Failed to fetch problem' },
+          { status: 500 }
+        );
+      }
+    }
+    
+    // If no ID, continue with the regular list query
     const query = searchParams.get('query') || '';
     const language = searchParams.get('language') || '';
     const tag = searchParams.get('tag') || '';

@@ -7,15 +7,21 @@ const nextConfig = {
   images: {
     remotePatterns: [], // Add any remote image patterns here if needed
   },
-  // Next.js 15 no longer needs the metadata experimental flag
-  // And swcMinify is enabled by default
+  // Disable features that may cause permission issues on Windows
   productionBrowserSourceMaps: false,
-  // Disable tracing to avoid permission issues on Windows
-  output: 'standalone',
-  // Set the distDir to a custom directory to avoid permission issues
-  distDir: 'build',
-  generateBuildId: async () => {
-    return `build-${new Date().getTime()}`;
+  poweredByHeader: false,
+  
+  // Configuration to handle permission issues
+  generateEtags: false,
+  
+  // Build configuration
+  output: 'standalone', // Creates a standalone build that can be deployed without Node.js
+  
+  // Disable trace output that causes EPERM errors
+  experimental: {
+    // Disable tracing to avoid permission issues
+    disableOptimizedLoading: true,
+    optimizeCss: false,
   },
 };
 
