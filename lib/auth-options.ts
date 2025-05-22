@@ -14,24 +14,43 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
-      },
-      async authorize(credentials) {
+      },      async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error('Please enter email and password');
           }
 
-          await connectToDatabase();
+          try {
+            // Try to connect to the database
+            await connectToDatabase();
+          } catch (connectionError) {
+            console.error('Database connection failed during authentication:', connectionError);
+            throw new Error('Database connection error. Please try again later or contact support.');
+          }
 
-          const user = await User.findOne({ email: credentials.email }).select('+password');
+          let user;
+          try {
+            user = await User.findOne({ email: credentials.email }).select('+password');
+          } catch (dbError) {
+            console.error('Error querying user:', dbError);
+            throw new Error('Authentication error. Please try again later.');
+          }
 
           if (!user) {
+            console.log(`No user found with email: ${credentials.email}`);
             throw new Error('Invalid email or password');
           }
 
-          const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
+          let isPasswordMatch;
+          try {
+            isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
+          } catch (bcryptError) {
+            console.error('Password comparison error:', bcryptError);
+            throw new Error('Authentication error. Please try again later.');
+          }
 
           if (!isPasswordMatch) {
+            console.log(`Password mismatch for user: ${credentials.email}`);
             throw new Error('Invalid email or password');
           }
 
