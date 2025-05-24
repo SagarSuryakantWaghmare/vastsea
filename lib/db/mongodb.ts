@@ -38,7 +38,7 @@ export async function connectToDatabase() {
       serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
       family: 4, // Use IPv4, skip trying IPv6
     };
-    
+    // @ts-ignore
     cached.promise = mongoose.connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log('✅ Connected to MongoDB successfully');
