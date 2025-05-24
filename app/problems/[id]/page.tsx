@@ -57,21 +57,76 @@ export default function ProblemPage({ params }: PageProps) {
       try {
         // In Next.js 15, params need to be awaited
         const resolvedParams = await params;
-        const id = resolvedParams.id;
+        const id = resolvedParams.id;        // Using the simplified API route with query parameter instead of dynamic route
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        // Using the simplified API route with query parameter instead of dynamic route
-        const response = await fetch(`/api/problems?id=${id}`, {
-          cache: 'no-store',
-        });
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            notFound();
+        // Add retry mechanism for resilience
+        let retries = 0;
+        let response;
+        
+        while (retries < 3) {
+          try {
+            response = await fetch(`/api/problems?id=${id}`, {
+              cache: 'no-store',
+              next: { revalidate: 0 },
+              signal: controller.signal,
+              headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'X-Requested-With': 'XMLHttpRequest'
+              }
+            });
+            
+            if (response.ok) break;
+            
+            // If we get a 404, no need to retry - it's a not found
+            if (response.status === 404) {
+              notFound();
+            }
+            
+            // If we get a 5xx error, retry
+            if (response.status >= 500) {
+              retries++;
+              await new Promise(r => setTimeout(r, 1000 * retries));
+              console.log(`Retrying request (${retries}/3)...`);
+              continue;
+            }
+            
+            // For non-5xx errors, don't retry
+            break;
+          } catch (fetchError) {
+            if (retries >= 2) throw fetchError;
+            retries++;
+            await new Promise(r => setTimeout(r, 1000 * retries));
+            console.log(`Retrying after fetch error (${retries}/3)...`, fetchError);
           }
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        clearTimeout(timeoutId);
+
+        if (!response || !response.ok) {
+          throw new Error(`Error ${response?.status || 'Unknown'}: ${response?.statusText || 'Unknown Error'}`);
         }
 
-        const data = await response.json();
+        // Handle potential HTML response instead of JSON
+        let data;
+        try {
+          const responseText = await response.text();
+          
+          // Check if response looks like HTML (might be an error page)
+          if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+            console.error('Received HTML instead of JSON:', responseText.substring(0, 100) + '...');
+            throw new Error('Server returned HTML instead of JSON. The API might be experiencing issues.');
+          }
+          
+          // Parse JSON manually after checking
+          data = JSON.parse(responseText);
+        } catch (parseError: any) {
+          console.error('JSON Parse Error:', parseError);
+          throw new Error(`Failed to parse response: ${parseError.message}`);
+        }
         setProblem(data);
         
         // Set the first available language as active

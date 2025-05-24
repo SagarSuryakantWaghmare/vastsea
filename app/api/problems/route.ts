@@ -4,11 +4,13 @@ import { connectToDatabase } from '@/lib/db/mongodb';
 import Problem from '@/lib/db/models/Problem';
 import User from '@/lib/db/models/User';
 import { authOptions } from '@/lib/auth-options';
+import { handleApiError } from '@/lib/api-error-utils';
 
 // Specify runtime configuration for this API route
 export const runtime = 'nodejs'; // Ensures compatibility with mongoose
 
 export async function GET(req: Request) {
+  // Catch all unhandled errors and format them as JSON
   try {
     const url = new URL(req.url);
     const searchParams = url.searchParams;
@@ -16,32 +18,54 @@ export async function GET(req: Request) {
     // Check if we're requesting a specific problem by ID
     const id = searchParams.get('id');
     if (id) {
-      // This is a request for a specific problem
-      await connectToDatabase();
-      
-      // Ensure User model is registered before population
-      if (User) {
-        console.log("User model registered for population");
-      }
-      
       try {
+        // This is a request for a specific problem
+        await connectToDatabase();
+        
+        // Ensure User model is registered before population
+        if (User) {
+          console.log("User model registered for population");
+        }
+        
+        // Validate ID format (for MongoDB ObjectId)
+        if (!/^[0-9a-fA-F]{24}$/.test(id)) {
+          console.error(`Invalid problem ID format: ${id}`);
+          return NextResponse.json(
+            { error: 'Invalid problem ID format' },
+            { status: 400 }
+          );
+        }
+        
         const problem = await Problem.findById(id).populate({
           path: 'author',
           select: 'name email'
         });
         
         if (!problem) {
+          console.log(`Problem not found with ID: ${id}`);
           return NextResponse.json(
             { error: 'Problem not found' },
-            { status: 404 }
+            { 
+              status: 404,
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, max-age=0'
+              }
+            }
           );
         }
         
-        return NextResponse.json(problem);
+        // Explicitly set Content-Type header to ensure proper JSON response
+        return NextResponse.json(problem, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, max-age=0'
+          }
+        });
       } catch (error) {
         console.error('Error fetching problem by ID:', error);
         return NextResponse.json(
-          { error: 'Failed to fetch problem' },
+          { error: 'Failed to fetch problem', details: String(error) },
           { status: 500 }
         );
       }
@@ -84,15 +108,23 @@ export async function GET(req: Request) {
     // Execute query
     const problems = await Problem.find(queryObj)
       .sort({ createdAt: -1 })
-      .populate('author', 'name email');
+      .populate('author', 'name email')
+      // Add error handling for population
+      .catch(err => {
+        console.error('Query execution error:', err);
+        throw err;
+      });
     
-    return NextResponse.json({ problems });
+    // Explicitly set Content-Type header to ensure proper JSON response
+    return NextResponse.json({ problems }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
+      }
+    });
   } catch (error) {
     console.error('Error fetching problems:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch problems' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -103,7 +135,13 @@ export async function POST(req: Request) {
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401 }
+        { 
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, max-age=0'
+          }
+        }
       );
     }
 
@@ -142,9 +180,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ problem }, { status: 201 });
   } catch (error) {
     console.error('Error creating problem:', error);
-    return NextResponse.json(
-      { error: 'Failed to create problem' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

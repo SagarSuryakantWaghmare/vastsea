@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { enhancedFetch, safeJsonParse } from '@/lib/client-utils';
 
 const languages = ["All", "java", "c", "cpp", "js"];
 const languageDisplayNames: Record<string, string> = {
@@ -44,11 +45,14 @@ export default function ProblemsPage() {
   const [selectedTag, setSelectedTag] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Fetch problems from API
   useEffect(() => {
     const fetchProblems = async () => {
       setIsLoading(true);
+      setError(null);
+      
       try {
         // Build query params
         const params = new URLSearchParams();
@@ -56,46 +60,51 @@ export default function ProblemsPage() {
         if (selectedLanguage !== 'All') params.append('language', selectedLanguage);
         if (selectedTag !== 'All') params.append('tag', selectedTag);
         
-        // Use relative URL which works in both development and production
-        const response = await fetch(`/api/problems?${params.toString()}`, {
-          // Add cache: 'no-store' to prevent caching issues in production
-          cache: 'no-store',
-        });
+        // Use our enhanced fetch utility with built-in retries and timeout
+        console.log(`Fetching problems with params: ${params.toString()}`);
+        const response = await enhancedFetch(`/api/problems?${params.toString()}`);
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch problems');
+        // Use our safe JSON parsing utility to handle HTML responses
+        const data = await safeJsonParse(response);
+        
+        // Check if data has the expected structure
+        if (!data || !Array.isArray(data.problems)) {
+          console.error('Invalid response structure:', data);
+          throw new Error('Invalid response from server');
         }
         
-        const data = await response.json();
         setProblems(data.problems);
         
         // Extract all unique tags for filter
         const uniqueTags = new Set<string>();
         uniqueTags.add('All');
         data.problems.forEach((problem: Problem) => {
-          problem.tags.forEach(tag => uniqueTags.add(tag));
+          if (Array.isArray(problem.tags)) {
+            problem.tags.forEach(tag => uniqueTags.add(tag));
+          }
         });
         setAllTags(Array.from(uniqueTags));
         
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching problems:', error);
-        setError('Failed to load problems. Please try again later.');
+        setError(error.message || 'Failed to load problems. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProblems();
-  }, [searchQuery, selectedLanguage, selectedTag]);
+  }, [searchQuery, selectedLanguage, selectedTag, retryCount]);
 
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedLanguage('All');
     setSelectedTag('All');
   };
-
-  // Since we're doing filtering in the API call, we can use problems directly
-  // We just need to check if we're still loading or if there was an error
+  
+  const retryFetch = () => {
+    setRetryCount(prev => prev + 1);
+  };
   
   return (
     <div className="container py-10">
@@ -174,24 +183,29 @@ export default function ProblemsPage() {
       <AnimatePresence>
         {isLoading ? (
           <motion.div
-            className="flex justify-center items-center py-12"
+            className="flex flex-col justify-center items-center py-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-lg">Loading problems...</span>
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+            <span className="text-lg">Loading problems...</span>
           </motion.div>
         ) : error ? (
           <motion.div
-            className="text-center py-12 text-red-500"
+            className="text-center py-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <h3 className="text-xl font-medium mb-2">Error</h3>
-            <p>{error}</p>
-            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+            <h3 className="text-xl font-medium mb-2 text-red-500">Error</h3>
+            <p className="mb-4">{error}</p>
+            <Button 
+              variant="outline" 
+              onClick={retryFetch}
+              className="hover:bg-primary/10"
+            >
+              <Loader2 className="mr-2 h-4 w-4" />
               Try again
             </Button>
           </motion.div>
@@ -222,10 +236,10 @@ export default function ProblemsPage() {
             transition={{ duration: 0.3 }}
           >
             <h3 className="text-xl font-medium mb-2">No problems found</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-4">
               Try adjusting your search or filters to find what you're looking for.
             </p>
-            <Button variant="outline" className="mt-4" onClick={clearFilters}>
+            <Button variant="outline" onClick={clearFilters}>
               Clear all filters
             </Button>
           </motion.div>

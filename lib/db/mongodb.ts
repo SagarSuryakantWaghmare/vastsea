@@ -35,9 +35,17 @@ export async function connectToDatabase() {
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10, // Maintain up to 10 socket connections
-      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+      serverSelectionTimeoutMS: 10000, // Increased timeout for better reliability
       family: 4, // Use IPv4, skip trying IPv6
+      connectTimeoutMS: 10000, // Increased connection timeout
+      socketTimeoutMS: 45000, // Increased socket timeout for operations
+      // Retry connection for transient errors
+      retryWrites: true,
+      retryReads: true,
     };
+    
+    console.log('Attempting to connect to MongoDB...');
+    
     // @ts-ignore
     cached.promise = mongoose.connect(MONGODB_URI, opts)
       .then((mongoose) => {
@@ -47,7 +55,7 @@ export async function connectToDatabase() {
       .catch((error) => {
         console.error('❌ MongoDB connection error:', error);
         
-        // More user-friendly error messages
+        // More user-friendly error messages with detailed logging
         if (error.code === 8000 || error.message.includes('bad auth')) {
           console.error('Authentication failed: Please check your username and password in MONGODB_URI');
         } else if (error.code === 'ENOTFOUND') {

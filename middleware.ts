@@ -19,6 +19,9 @@ export default withAuth(
 export const config = {
   matcher: [
     "/add",
-    "/api/problems/:path*"
+    "/dashboard",
+    "/api/user/:path*"
+    // We'll handle authorization checks inside the route handlers for /api/problems
+    // This allows public access to GET requests while protecting POST/PUT/DELETE in the route handlers
   ]
 };

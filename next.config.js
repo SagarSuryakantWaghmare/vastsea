@@ -17,6 +17,43 @@ const nextConfig = {
   // Build configuration
   output: 'standalone', // Creates a standalone build that can be deployed without Node.js
   
+  // Improved HTTP handling
+  httpAgentOptions: {
+    keepAlive: true,
+  },
+  
+  // Add proper headers to API responses
+  async headers() {
+    return [
+      {
+        // Apply these headers to API routes
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json; charset=utf-8'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, max-age=0, must-revalidate'
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          }
+        ]
+      }
+    ];
+  },
+  
   // Disable trace output that causes EPERM errors
   experimental: {
     // Disable tracing to avoid permission issues
