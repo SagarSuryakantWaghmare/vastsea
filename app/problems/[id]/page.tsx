@@ -111,6 +111,7 @@ export default function ProblemPage({ params }: PageProps) {
         }
 
         // Handle potential HTML response instead of JSON
+        // @ts-ignore
         let data;
         try {
           const responseText = await response.text();
