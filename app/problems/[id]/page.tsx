@@ -108,11 +108,8 @@ export default function ProblemPage({ params }: PageProps) {
 
         if (!response || !response.ok) {
           throw new Error(`Error ${response?.status || 'Unknown'}: ${response?.statusText || 'Unknown Error'}`);
-        }
-
-        // Handle potential HTML response instead of JSON
-        // @ts-ignore
-        let data;
+        }        // Handle potential HTML response instead of JSON
+        let data: Problem;
         try {
           const responseText = await response.text();
           
@@ -123,7 +120,7 @@ export default function ProblemPage({ params }: PageProps) {
           }
           
           // Parse JSON manually after checking
-          data = JSON.parse(responseText);
+          data = JSON.parse(responseText) as Problem;
         } catch (parseError: any) {
           console.error('JSON Parse Error:', parseError);
           throw new Error(`Failed to parse response: ${parseError.message}`);
