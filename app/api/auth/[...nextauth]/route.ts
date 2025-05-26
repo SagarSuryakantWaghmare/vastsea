@@ -31,7 +31,7 @@ declare module 'next-auth/jwt' {
   }
 }
 
-// Handler for API route
+// Create a standard NextAuth handler with proper error handling
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

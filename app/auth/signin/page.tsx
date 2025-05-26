@@ -72,7 +72,16 @@ export default function SignInPage() {
       }
     } catch (error: any) {
       console.error('Sign-in exception:', error);
-      setError('Connection error. Please try again later.');
+      
+      // Handle specific JSON parsing error that occurs in production
+      if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        setError('Authentication service is temporarily unavailable. Please try again later.');
+        
+        // Log this specific error for debugging
+        console.error('JSON parsing error during sign-in - likely server-side issue');
+      } else {
+        setError('Connection error. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }

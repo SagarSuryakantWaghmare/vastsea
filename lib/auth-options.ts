@@ -46,18 +46,18 @@ export const authOptions: NextAuthOptions = {
           } catch (bcryptError) {
             console.error('Password comparison error:', bcryptError);
             throw new Error('Authentication error. Please try again later.');
-          }
-
-          if (!isPasswordMatch) {
+          }          if (!isPasswordMatch) {
             console.log(`Password mismatch for user: ${credentials.email}`);
             throw new Error('Invalid email or password');
           }
 
+          // Ensure proper JSON serialization of MongoDB objects
           return {
             id: user._id.toString(),
             email: user.email,
             name: user.name,
-            createdAt: user.createdAt
+            // Convert Date object to ISO string to ensure proper serialization
+            createdAt: user.createdAt ? user.createdAt.toISOString() : new Date().toISOString()
           };
         } catch (error) {
           console.error('Authentication error:', error);
@@ -65,13 +65,15 @@ export const authOptions: NextAuthOptions = {
         }
       }
     })
-  ],
-  session: {
-    strategy: 'jwt'
+  ],  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60 // 30 days
   },
   pages: {
-    signIn: '/auth/signin'
+    signIn: '/auth/signin',
+    error: '/auth/error'
   },
+  debug: process.env.NODE_ENV === 'development',
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -79,8 +81,7 @@ export const authOptions: NextAuthOptions = {
         token.createdAt = user.createdAt;
       }
       return token;
-    },
-    async session({ session, token }) {
+    },    async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id ?? '';
         session.user.createdAt = token.createdAt;
@@ -88,5 +89,5 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-do-not-use-in-production'
 };
