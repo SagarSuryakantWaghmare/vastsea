@@ -40,7 +40,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 group">
           <motion.div
-            className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-500 text-transparent bg-clip-text group-hover:from-blue-500 group-hover:via-purple-500 group-hover:to-teal-400 transition-all duration-300"
+            className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -281,7 +281,7 @@ const Navbar = () => {
                       >
                         <Button 
                           size="lg" 
-                          className="w-full justify-center gap-2 h-12 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-teal-500 hover:from-blue-500 hover:via-purple-500 hover:to-teal-400 hover:shadow-lg hover:shadow-primary/25 text-white font-medium transition-all duration-300"
+                          className="w-full justify-center gap-2 h-12 rounded-xl"
                         >
                           <UserPlus className="h-5 w-5" />
                           <span>Contribute Now</span>

@@ -81,7 +81,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="w-full py-16">
+    <div className="w-full py-2">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -199,16 +199,7 @@ export default function SignUpPage() {
                   {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
 
-                <div className="relative mt-6 pt-6 border-t text-center">
-                  <span className="bg-background px-2 text-xs text-muted-foreground absolute -top-2 left-1/2 -translate-x-1/2">
-                    or continue with
-                  </span>
-                  <div className="flex justify-center space-x-4 mt-4">
-                    <Button variant="outline" size="icon" className="rounded-full w-10 h-10">G</Button>
-                    <Button variant="outline" size="icon" className="rounded-full w-10 h-10">X</Button>
-                    <Button variant="outline" size="icon" className="rounded-full w-10 h-10">M</Button>
-                  </div>
-                </div>
+                
               </form>
             </Form>
           </CardContent>

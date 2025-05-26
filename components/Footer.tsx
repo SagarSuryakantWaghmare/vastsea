@@ -75,7 +75,7 @@ const Footer = () => {
             {/* Brand Section */}
             <motion.div className="lg:col-span-2" variants={itemVariants}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-500 text-transparent bg-clip-text">
+                <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight">
                   VastSea
                 </div>
                 <span className="text-xs bg-gradient-to-r from-primary/20 to-secondary/20 text-primary px-3 py-1 rounded-full font-medium border border-primary/20">
