@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, Search, Plus, Moon, Sun, LogIn, LogOut, UserPlus } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Menu, Search, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,12 +20,27 @@ const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
 
+  // Prevent background scrolling when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup function to restore scrolling if component unmounts
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2 group">
           <motion.div
-            className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text"
+            className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-500 text-transparent bg-clip-text group-hover:from-blue-500 group-hover:via-purple-500 group-hover:to-teal-400 transition-all duration-300"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -34,21 +49,23 @@ const Navbar = () => {
           </motion.div>
         </Link>
 
-
-        <div className="flex items-center gap-4">
-          <form className="hidden md:flex relative w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        {/* Desktop Search & Actions */}
+        <div className="flex items-center gap-3">
+          {/* Search Bar */}
+          <form className="hidden md:flex relative w-72">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
             <Input
               type="search"
               placeholder="Search problems..."
-              className="w-full pl-10 rounded-full border-primary/20 focus-visible:ring-primary/30 transition-all focus-visible:shadow-sm"
+              className="w-full pl-12 pr-4 h-10 rounded-full border-border/50 bg-background/50 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-all duration-200 shadow-sm hover:shadow-md focus-visible:shadow-lg"
             />
           </form>
           
+          {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hover:bg-accent/50 transition-colors"
+            className="rounded-full h-10 w-10 hover:bg-accent/60 border border-transparent hover:border-border/50 transition-all duration-200 shadow-sm hover:shadow-md"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -56,47 +73,51 @@ const Navbar = () => {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
+          {/* User Menu */}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-10 w-10 rounded-full overflow-hidden p-0 bg-primary/10 hover:bg-primary/20 transition-all"
+                  className="h-10 w-10 rounded-full overflow-hidden p-0 bg-gradient-to-br from-primary/20 to-secondary/20 hover:from-primary/30 hover:to-secondary/30 transition-all duration-200 border border-border/30 shadow-sm hover:shadow-md"
                 >
-                  <span className="text-primary font-medium">
+                  <span className="text-primary font-semibold text-sm">
                     {session.user?.name 
                       ? `${session.user.name.split(' ')[0][0]}${session.user.name.split(' ')[1]?.[0] || ''}`
                       : session.user?.email?.[0].toUpperCase()}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl border-primary/10 shadow-lg w-56 p-2">
-                <div className="px-2 py-2 border-b mb-2">
-                  <p className="font-medium">{session.user?.name}</p>
-                  <p className="text-xs text-muted-foreground">{session.user?.email}</p>
+              <DropdownMenuContent align="end" className="rounded-2xl border-border/50 shadow-xl backdrop-blur-xl bg-background/95 w-64 p-3 mt-2">
+                <div className="px-3 py-3 border-b border-border/30 mb-2">
+                  <p className="font-semibold text-sm">{session.user?.name}</p>
+                  <p className="text-xs text-muted-foreground/80">{session.user?.email}</p>
                 </div>
-                <DropdownMenuItem asChild className="cursor-pointer rounded-lg focus:bg-accent/70 h-10">
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl focus:bg-accent/80 h-11 px-3 mb-1">
                   <Link href="/dashboard" className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    <LayoutDashboard className="mr-3 h-4 w-4" />
                     Dashboard
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer rounded-lg focus:bg-accent/70 h-10">
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl focus:bg-accent/80 h-11 px-3 mb-1">
                   <Link href="/add" className="flex items-center">
-                    <Plus className="mr-2 h-4 w-4" />
+                    <Plus className="mr-3 h-4 w-4" />
                     Add Problem
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer rounded-lg focus:bg-accent/70 text-destructive focus:text-destructive h-10">
-                  <LogOut className="mr-2 h-4 w-4" />
+                <DropdownMenuItem 
+                  onClick={() => signOut()} 
+                  className="cursor-pointer rounded-xl focus:bg-destructive/10 text-destructive focus:text-destructive h-11 px-3 mt-2 border-t border-border/30 pt-3"
+                >
+                  <LogOut className="mr-3 h-4 w-4" />
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="hidden md:block">
-              <Button size="sm" asChild className="rounded-full bg-gradient-to-r from-blue-600 to-teal-500 hover:shadow-md hover:shadow-primary/20 text-white border-0 px-6 transition-all">
+              <Button size="sm" asChild className="rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-teal-500 hover:from-blue-500 hover:via-purple-500 hover:to-teal-400 hover:shadow-lg hover:shadow-primary/25 text-white border-0 px-6 h-10 font-medium transition-all duration-300 hover:scale-105">
                 <Link href="/auth/signin" className="flex items-center gap-2">
                   <UserPlus className="h-4 w-4" />
                   <span>Contribute Now</span>
@@ -105,150 +126,192 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* Mobile menu button */}
+          {/* Enhanced Mobile Hamburger Menu */}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden rounded-full hover:bg-accent/50 transition-colors"
+            className="md:hidden relative h-10 w-10 rounded-xl hover:bg-accent/60 border border-transparent hover:border-border/50 transition-all duration-200 shadow-sm hover:shadow-md"
             onClick={() => setIsOpen(!isOpen)}
           >
-            <Menu className="h-5 w-5" />
+            <div className="flex flex-col justify-center items-center w-5 h-5">
+              <motion.span
+                className="block h-0.5 w-5 bg-current rounded-full"
+                animate={isOpen ? { rotate: 45, y: 2 } : { rotate: 0, y: -2 }}
+                transition={{ duration: 0.2 }}
+              />
+              <motion.span
+                className="block h-0.5 w-5 bg-current rounded-full mt-1"
+                animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              />
+              <motion.span
+                className="block h-0.5 w-5 bg-current rounded-full mt-1"
+                animate={isOpen ? { rotate: -45, y: -2 } : { rotate: 0, y: 2 }}
+                transition={{ duration: 0.2 }}
+              />
+            </div>
           </Button>
         </div>
       </div>
 
-      {/* Mobile Navigation - Slide from right */}
-      {isOpen && (
-        <motion.div
-          className="md:hidden fixed top-0 right-0 h-full w-4/5 max-w-xs bg-background/95 backdrop-blur-xl shadow-xl z-[100] border-l"
-          initial={{ x: '100%', opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: '100%', opacity: 0 }}
-          transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
-        >
-          <div className="flex flex-col h-full z-[100]">
-            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/95 backdrop-blur-xl z-10">
-              <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
-                VastSea
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full hover:bg-accent/50"
-                onClick={() => setIsOpen(false)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </Button>
-            </div>
+      {/* Enhanced Mobile Navigation Sidebar */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div 
+              className="md:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-[98]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsOpen(false)}
+            />
             
-            <div className="p-4 bg-background/80 backdrop-blur-md sticky top-[65px] z-[5]">
-              <form className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search problems..."
-                  className="w-full pl-10 rounded-full border-primary/20 focus-visible:ring-primary/30 shadow-sm"
-                />
-              </form>
-            </div>
-            <div className="border-t border-border/40 my-1"></div>
-            <div className="px-4 space-y-2 py-2 overflow-y-auto">
-              <Link 
-                href="/" 
-                className="px-4 py-3 text-base font-medium rounded-md hover:bg-accent/50 transition-colors flex items-center"
-                onClick={() => setIsOpen(false)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Home
-              </Link>
-              <Link 
-                href="/problems" 
-                className="px-4 py-3 text-base font-medium rounded-md hover:bg-accent/50 transition-colors flex items-center"
-                onClick={() => setIsOpen(false)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
-                Problems
-              </Link>
-              
-              {session ? (
-                <div className="space-y-3 mt-4">
-                  <Link
-                    href="/dashboard"
-                    className="px-4 py-3 text-base font-medium rounded-md hover:bg-accent/50 transition-colors flex items-center"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/add"
-                    className="px-4 py-3 text-base font-medium rounded-md hover:bg-accent/50 transition-colors flex items-center"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Problem
-                  </Link>
+            {/* Sidebar */}
+            <motion.div
+              className="md:hidden fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-xl shadow-2xl z-[99] border-b border-border/50"
+              initial={{ y: '-100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '-100%' }}
+              transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+            >
+              <div className="max-h-[90vh] overflow-y-auto">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/90 backdrop-blur-md">
+                  <div className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-500 text-transparent bg-clip-text">
+                    VastSea
+                  </div>
                   <Button 
                     variant="ghost" 
-                    className="justify-start px-4 py-3 h-auto text-base font-medium w-full rounded-md text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => {
-                      signOut();
-                      setIsOpen(false);
-                    }}
+                    size="icon" 
+                    className="h-9 w-9 rounded-xl hover:bg-accent/60 transition-colors"
+                    onClick={() => setIsOpen(false)}
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
-              ) : (
-              <div className="mt-4">
-                <Link
-                  href="/auth/signin"
-                  onClick={() => setIsOpen(false)}
-                  className="block"
-                >
-                  <Button 
-                    size="lg" 
-                    className="w-full justify-center gap-1 rounded-full bg-gradient-to-r from-blue-600 to-teal-500 hover:shadow-md hover:shadow-primary/20 text-white"
+                
+                {/* Search */}
+                <div className="p-6 bg-background/50 backdrop-blur-md border-b border-border/20">
+                  <form className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
+                    <Input
+                      type="search"
+                      placeholder="Search problems..."
+                      className="w-full pl-12 pr-4 h-11 rounded-xl border-border/50 bg-background/70 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-primary/30 shadow-sm"
+                    />
+                  </form>
+                </div>
+
+                {/* Navigation Links */}
+                <div className="px-4 py-6 space-y-2">
+                  <Link 
+                    href="/" 
+                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                    onClick={() => setIsOpen(false)}
                   >
-                    <UserPlus className="h-4 w-4" />
-                    Contribute Now
-                  </Button>
-                </Link>
+                    <Home className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span>Home</span>
+                  </Link>
+                  
+                  <Link 
+                    href="/problems" 
+                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FileText className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span>Problems</span>
+                  </Link>
+                  
+                  {session ? (
+                    <div className="space-y-2 pt-4 border-t border-border/30 mt-4">
+                      <div className="px-4 py-2 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-border/30">
+                            <span className="text-primary font-semibold text-sm">
+                              {session.user?.name 
+                                ? `${session.user.name.split(' ')[0][0]}${session.user.name.split(' ')[1]?.[0] || ''}`
+                                : session.user?.email?.[0].toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">{session.user?.name}</p>
+                            <p className="text-xs text-muted-foreground">{session.user?.email}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <LayoutDashboard className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        <span>Dashboard</span>
+                      </Link>
+                      
+                      <Link
+                        href="/add"
+                        className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Plus className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        <span>Add Problem</span>
+                      </Link>
+                      
+                      <Button 
+                        variant="ghost" 
+                        className="justify-start w-full px-4 py-3 h-auto text-base font-medium rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive transition-all duration-200 mt-2"
+                        onClick={() => {
+                          signOut();
+                          setIsOpen(false);
+                        }}
+                      >
+                        <LogOut className="mr-3 h-5 w-5" />
+                        <span>Sign Out</span>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="pt-6 border-t border-border/30 mt-6">
+                      <Link
+                        href="/auth/signin"
+                        onClick={() => setIsOpen(false)}
+                        className="block"
+                      >
+                        <Button 
+                          size="lg" 
+                          className="w-full justify-center gap-2 h-12 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-teal-500 hover:from-blue-500 hover:via-purple-500 hover:to-teal-400 hover:shadow-lg hover:shadow-primary/25 text-white font-medium transition-all duration-300"
+                        >
+                          <UserPlus className="h-5 w-5" />
+                          <span>Contribute Now</span>
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Footer with Theme Toggle */}
+                <div className="p-6 border-t border-border/30 bg-background/90 backdrop-blur-md">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">Switch theme</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-xl hover:bg-accent/60 border border-transparent hover:border-border/50 transition-all duration-200"
+                      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    >
+                      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <span className="sr-only">Toggle theme</span>
+                    </Button>
+                  </div>
+                </div>
               </div>
-            )}
-            </div>
-            
-            {/* Footer with theme toggle */}
-            <div className="mt-auto p-4 border-t sticky bottom-0 bg-background/95 backdrop-blur-xl">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Switch theme</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full hover:bg-accent/50"
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                >
-                  <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-      
-      {/* Modal overlay for mobile menu */}
-      {isOpen && (
-        <motion.div 
-          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[99]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
