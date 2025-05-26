@@ -2,9 +2,8 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import User from '@/lib/db/models/User';
-// Using dynamic import for bcrypt to avoid Edge runtime issues
-// @ts-ignore - We'll handle bcrypt in the authorize function
-import * as bcrypt from 'bcryptjs';
+// Dynamic import for bcrypt to avoid Edge runtime issues
+// We'll dynamically import bcrypt in the authorize function
 
 // Auth options
 export const authOptions: NextAuthOptions = {
@@ -39,10 +38,10 @@ export const authOptions: NextAuthOptions = {
           if (!user) {
             console.log(`No user found with email: ${credentials.email}`);
             throw new Error('Invalid email or password');
-          }
-
-          let isPasswordMatch;
+          }          let isPasswordMatch;
           try {
+            // Dynamically import bcrypt to avoid Edge compatibility issues
+            const bcrypt = await import('bcryptjs');
             isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
           } catch (bcryptError) {
             console.error('Password comparison error:', bcryptError);

@@ -47,6 +47,8 @@ export default function SignInPage() {
     setError(null);
 
     try {
+      console.log('Attempting sign in for:', values.email);
+      
       const result = await signIn('credentials', {
         redirect: false,
         email: values.email,
@@ -54,13 +56,23 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        console.log('Sign-in error:', result.error);
+        
+        // Map error messages to user-friendly versions
+        if (result.error === 'CredentialsSignin') {
+          setError('Invalid email or password. Please try again.');
+        } else if (result.error.includes('database') || result.error.includes('connect')) {
+          setError('Server connection error. Please try again later.');
+        } else {
+          setError(result.error);
+        }
       } else {
         router.push('/dashboard');
         router.refresh();
       }
-    } catch (error) {
-      setError('An error occurred. Please try again.');
+    } catch (error: any) {
+      console.error('Sign-in exception:', error);
+      setError('Connection error. Please try again later.');
     } finally {
       setIsLoading(false);
     }

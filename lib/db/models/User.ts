@@ -1,6 +1,4 @@
 import mongoose, { Schema, model, models } from 'mongoose';
-//@ts-ignore
-import * as bcrypt from 'bcryptjs';
 
 interface IUser {
   name: string;
@@ -43,17 +41,27 @@ UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
+    // Dynamically import bcrypt
+    const bcrypt = await import('bcryptjs');
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error: any) {
+    console.error('Password hashing error:', error);
     next(error);
   }
 });
 
 // Method to check password
 UserSchema.methods.comparePassword = async function(candidatePassword: string) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  try {
+    // Dynamically import bcrypt
+    const bcrypt = await import('bcryptjs');
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    console.error('Password comparison error:', error);
+    return false;
+  }
 };
 
 // Check if the model already exists to prevent recompiling the model during hot reloads
