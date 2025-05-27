@@ -1,5 +1,5 @@
 "use client";
-
+// This is for adding the problems to the mongodb where the api call for this :/api/problem
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { motion } from 'framer-motion';
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +23,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Save } from "lucide-react";
 import CodeEditor from "@/components/CodeEditor";
-
 // Form schema
 const formSchema = z.object({
   title: z.string().min(3, {

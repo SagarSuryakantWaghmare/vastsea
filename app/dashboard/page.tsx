@@ -73,7 +73,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       if (!session?.user) return;
-      
+      // Here we add the check to the for user session checking
       setIsLoading(true);
       try {
         // Fetch user's problems
