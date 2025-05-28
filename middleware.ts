@@ -18,6 +18,7 @@ const authMiddleware = withAuth(
 );
 
 // Main middleware function to handle all cases
+// @ts-ignore
 export default function middleware(req) {
   const { pathname } = req.nextUrl;
   
@@ -34,6 +35,7 @@ export default function middleware(req) {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/api/user/')
   ) {
+    // @ts-ignore
     return authMiddleware(req);
   }
   

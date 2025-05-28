@@ -27,7 +27,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   icons: [
     { rel: 'icon', url: '/favicon.ico' },
-    { rel: 'apple-touch-icon', url: '/icons/icon-192.png' },
+    { rel: 'icon', url: '/icons/icon-512.svg', type: 'image/svg+xml' },
+    { rel: 'apple-touch-icon', url: '/icons/icon-192.svg', type: 'image/svg+xml' },
   ],
 };
 
