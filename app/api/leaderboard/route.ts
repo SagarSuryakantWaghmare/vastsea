@@ -35,6 +35,7 @@ export async function GET() {
     const leaderboardData = users.map(user => {
       // Find corresponding problem count for this user
       const userCountData = userCounts.find(
+        // @ts-ignore
         count => count._id && count._id.toString() === user._id.toString()
       );
       

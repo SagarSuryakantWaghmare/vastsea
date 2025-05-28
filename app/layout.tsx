@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   authors: [{ name: 'VastSea Team' }],
   keywords: ['programming', 'coding', 'problems', 'solutions', 'algorithms', 'Java', 'JavaScript', 'C++', 'C'],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  icons: [
+    { rel: 'icon', url: '/favicon.ico' },
+    { rel: 'apple-touch-icon', url: '/icons/icon-192.png' },
+  ],
 };
 
 export default function RootLayout({
