@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, Search, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X } from 'lucide-react';
+import { Menu, Search, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X, Trophy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -37,17 +37,32 @@ const Navbar = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 group">
-          <motion.div
-            className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            VastSea
-          </motion.div>
-        </Link>
+        <div className="flex items-center gap-6">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2 group">
+            <motion.div
+              className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              VastSea
+            </motion.div>
+          </Link>
+          
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1">
+            <Link href="/problems" className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
+              Problems
+            </Link>
+            <Link href="/leaderboard" className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
+              <span className="flex items-center gap-1.5">
+                <Trophy className="h-4 w-4" />
+                Leaderboard
+              </span>
+            </Link>
+          </nav>
+        </div>
 
         {/* Desktop Search & Actions */}
         <div className="flex items-center gap-3">
@@ -104,6 +119,12 @@ const Navbar = () => {
                   <Link href="/add" className="flex items-center">
                     <Plus className="mr-3 h-4 w-4" />
                     Add Problem
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl focus:bg-accent/80 h-11 px-3 mb-1">
+                  <Link href="/leaderboard" className="flex items-center">
+                    <Trophy className="mr-3 h-4 w-4" />
+                    Leaderboard
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -222,6 +243,15 @@ const Navbar = () => {
                   >
                     <FileText className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                     <span>Problems</span>
+                  </Link>
+                  
+                  <Link 
+                    href="/leaderboard" 
+                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Trophy className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span>Leaderboard</span>
                   </Link>
                   
                   {session ? (
