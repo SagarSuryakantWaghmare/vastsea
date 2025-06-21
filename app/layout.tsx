@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SessionProvider } from '@/components/session-provider';
+import { WarningScreen } from '@/components/WarningScreen';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Inter } from 'next/font/google';
@@ -46,7 +47,8 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="flex min-h-screen flex-col bg-background">
+            <WarningScreen />
+            <div id="main-app" className="flex min-h-screen flex-col bg-background" style={{ display: 'none' }}>
               <Navbar />
               <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">{children}</main>
               <Footer />

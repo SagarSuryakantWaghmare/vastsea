@@ -121,8 +121,7 @@ export default async function Home() {
                 <p className="text-sm text-center text-muted-foreground">
                   Browse problems and solutions in {name}
                 </p>
-              </div>
-            ))}
+              </div>            ))}
           </div>
         </section>
       </div>
