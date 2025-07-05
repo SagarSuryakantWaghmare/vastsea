@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, Search, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X, Trophy } from 'lucide-react';
+import { Menu, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X, Trophy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,15 +65,6 @@ const Navbar = () => {
 
         {/* Desktop Search & Actions */}
         <div className="flex items-center gap-3">
-          {/* Search Bar */}
-          <form className="hidden md:flex relative w-72">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-            <Input
-              type="search"
-              placeholder="Search problems..."
-              className="w-full pl-12 pr-4 h-10 rounded-full border-border/50 bg-background/50 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-all duration-200 shadow-sm hover:shadow-md focus-visible:shadow-lg"
-            />
-          </form>
           
           {/* Theme Toggle */}
           <Button
@@ -213,18 +203,6 @@ const Navbar = () => {
                   </Button>
                 </div>
                 
-                {/* Search */}
-                <div className="p-6 bg-background/50 backdrop-blur-md border-b border-border/20">
-                  <form className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-                    <Input
-                      type="search"
-                      placeholder="Search problems..."
-                      className="w-full pl-12 pr-4 h-11 rounded-xl border-border/50 bg-background/70 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-primary/30 shadow-sm"
-                    />
-                  </form>
-                </div>
-
                 {/* Navigation Links */}
                 <div className="px-4 py-6 space-y-2">
                   <Link 
