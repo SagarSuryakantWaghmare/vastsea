@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X, Trophy } from 'lucide-react';
+import { Menu, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X, Trophy, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,9 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center gap-1">
             <Link href="/problems" className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
               Problems
+            </Link>
+            <Link href="/about" className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
+              About
             </Link>
             <Link href="/leaderboard" className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
               <span className="flex items-center gap-1.5">
@@ -221,6 +224,15 @@ const Navbar = () => {
                   >
                     <FileText className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                     <span>Problems</span>
+                  </Link>
+                  
+                  <Link 
+                    href="/about" 
+                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Heart className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span>About</span>
                   </Link>
                   
                   <Link 

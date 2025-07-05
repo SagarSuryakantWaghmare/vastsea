@@ -11,7 +11,7 @@ const Footer = () => {
     { href: "/", label: "Home", icon: Globe },
     { href: "/problems", label: "Problems", icon: Code },
     { href: "/about", label: "About", icon: Heart },
-    { href: "/contact", label: "Contact", icon: Mail },
+    { href: "/add", label: "Contribute Now", icon: Zap },
   ];
 
   const socialLinks = [
