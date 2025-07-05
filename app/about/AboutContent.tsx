@@ -86,7 +86,7 @@ const AboutContent = () => {
             </Avatar>
             
             <div>
-              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight mb-4">
+              <h1 className="py-4 text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight mb-4">
                 Sagar Suryakant Waghmare
               </h1>
               <div className="flex flex-wrap justify-center gap-2 mb-6">
