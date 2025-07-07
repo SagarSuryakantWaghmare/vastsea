@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, Search, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X, Trophy } from 'lucide-react';
+import { Menu, Search, Plus, Moon, Sun, LogIn, LogOut, UserPlus, Home, FileText, LayoutDashboard, X, Trophy, Settings, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -60,6 +60,9 @@ const Navbar = () => {
                 <Trophy className="h-4 w-4" />
                 Leaderboard
               </span>
+            </Link>
+            <Link href="/about" className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
+              About
             </Link>
           </nav>
         </div>
@@ -121,6 +124,15 @@ const Navbar = () => {
                     Add Problem
                   </Link>
                 </DropdownMenuItem>
+                {/* Admin Link - Only show for admin users */}
+                {session.user?.email === 'sagarwaghmare1384@gmail.com' || session.user?.email === 'admin@vastsea.com' ? (
+                  <DropdownMenuItem asChild className="cursor-pointer rounded-xl focus:bg-accent/80 h-11 px-3 mb-1">
+                    <Link href="/admin" className="flex items-center">
+                      <Settings className="mr-3 h-4 w-4" />
+                      Admin
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem asChild className="cursor-pointer rounded-xl focus:bg-accent/80 h-11 px-3 mb-1">
                   <Link href="/leaderboard" className="flex items-center">
                     <Trophy className="mr-3 h-4 w-4" />
@@ -254,6 +266,15 @@ const Navbar = () => {
                     <span>Leaderboard</span>
                   </Link>
                   
+                  <Link 
+                    href="/about" 
+                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Info className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span>About</span>
+                  </Link>
+                  
                   {session ? (
                     <div className="space-y-2 pt-4 border-t border-border/30 mt-4">
                       <div className="px-4 py-2 mb-3">
@@ -289,6 +310,18 @@ const Navbar = () => {
                         <Plus className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                         <span>Add Problem</span>
                       </Link>
+                      
+                      {/* Admin Link - Only show for admin users */}
+                      {session.user?.email === 'sagarwaghmare1384@gmail.com' || session.user?.email === 'admin@vastsea.com' ? (
+                        <Link
+                          href="/admin"
+                          className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <Settings className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          <span>Admin</span>
+                        </Link>
+                      ) : null}
                       
                       <Button 
                         variant="ghost" 
