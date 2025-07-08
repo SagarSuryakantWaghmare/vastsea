@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -31,8 +31,25 @@ const formSchema = z.object({
 
 export default function SignInPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Admin emails
+  const adminEmails = ['sagarwaghmare1384@gmail.com', 'admin@vastsea.com'];
+
+  // Handle redirect after successful authentication
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.email) {
+      const isAdmin = adminEmails.includes(session.user.email);
+      
+      if (isAdmin) {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [session, status, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,8 +84,8 @@ export default function SignInPage() {
           setError(result.error);
         }
       } else {
-        router.push('/dashboard');
-        router.refresh();
+        // Success - the useEffect will handle the redirect based on user role
+        // Don't redirect here, let the useEffect handle it
       }
     } catch (error: any) {
       console.error('Sign-in exception:', error);

@@ -81,12 +81,21 @@ export const authOptions: NextAuthOptions = {
         token.createdAt = user.createdAt;
       }
       return token;
-    },    async session({ session, token }) {
+    },
+    async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id ?? '';
         session.user.createdAt = token.createdAt;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // If redirecting after sign-in, check if it's a valid URL
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      // Default redirect for users
+      return baseUrl + '/dashboard';
     }
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-do-not-use-in-production'

@@ -62,12 +62,22 @@ export default function DashboardPage() {
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Admin emails
+  const adminEmails = ['sagarwaghmare1384@gmail.com', 'admin@vastsea.com'];
+
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
+    } else if (status === 'authenticated' && session?.user?.email) {
+      // Redirect admin users to admin dashboard
+      const isAdmin = adminEmails.includes(session.user.email);
+      if (isAdmin) {
+        router.push('/admin');
+        return;
+      }
     }
-  }, [status, router]);
+  }, [status, router, session]);
 
   // Fetch user's problems
   useEffect(() => {
