@@ -15,7 +15,7 @@ async function isAdmin(email: string | null | undefined): Promise<boolean> {
 // GET - Fetch specific user
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,7 +26,9 @@ export async function GET(
 
     await connectToDatabase();
     
-    const user = await User.findById(params.id, { password: 0 }).lean();
+    // Await the params Promise in Next.js 15
+    const resolvedParams = await params;
+    const user = await User.findById(resolvedParams.id, { password: 0 }).lean();
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -48,7 +50,7 @@ export async function GET(
 // PUT - Update user
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -65,10 +67,13 @@ export async function PUT(
 
     await connectToDatabase();
 
+    // Await the params Promise in Next.js 15
+    const resolvedParams = await params;
+    
     // Check if email is already taken by another user
     const existingUser = await User.findOne({ 
       email, 
-      _id: { $ne: params.id } 
+      _id: { $ne: resolvedParams.id } 
     });
     
     if (existingUser) {
@@ -88,7 +93,7 @@ export async function PUT(
     }
 
     const user = await User.findByIdAndUpdate(
-      params.id,
+      resolvedParams.id,
       updateData,
       { new: true, select: '-password' }
     );
@@ -107,7 +112,7 @@ export async function PUT(
 // DELETE - Delete user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -118,8 +123,11 @@ export async function DELETE(
 
     await connectToDatabase();
 
+    // Await the params Promise in Next.js 15
+    const resolvedParams = await params;
+    
     // Prevent deleting admin users
-    const userToDelete = await User.findById(params.id);
+    const userToDelete = await User.findById(resolvedParams.id);
     if (!userToDelete) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -130,7 +138,7 @@ export async function DELETE(
     }
 
     // Delete the user
-    await User.findByIdAndDelete(params.id);
+    await User.findByIdAndDelete(resolvedParams.id);
 
     // Optionally, you might want to handle what happens to the user's problems
     // For now, we'll keep them but you could delete or reassign them

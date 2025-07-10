@@ -13,7 +13,7 @@ async function isAdmin(email: string | null | undefined): Promise<boolean> {
 // GET - Fetch specific problem
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -24,7 +24,9 @@ export async function GET(
 
     await connectToDatabase();
     
-    const problem = await Problem.findById(params.id)
+    // Await the params Promise in Next.js 15
+    const resolvedParams = await params;
+    const problem = await Problem.findById(resolvedParams.id)
       .populate('author', 'name email')
       .lean();
 
@@ -42,7 +44,7 @@ export async function GET(
 // PUT - Update problem
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -59,8 +61,10 @@ export async function PUT(
 
     await connectToDatabase();
 
+    // Await the params Promise in Next.js 15
+    const resolvedParams = await params;
     const problem = await Problem.findByIdAndUpdate(
-      params.id,
+      resolvedParams.id,
       {
         title,
         description,
@@ -83,7 +87,7 @@ export async function PUT(
 // DELETE - Delete problem
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -94,7 +98,9 @@ export async function DELETE(
 
     await connectToDatabase();
 
-    const problem = await Problem.findByIdAndDelete(params.id);
+    // Await the params Promise in Next.js 15
+    const resolvedParams = await params;
+    const problem = await Problem.findByIdAndDelete(resolvedParams.id);
 
     if (!problem) {
       return NextResponse.json({ error: 'Problem not found' }, { status: 404 });

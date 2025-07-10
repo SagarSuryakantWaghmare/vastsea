@@ -13,6 +13,7 @@ const Footer = () => {
     { href: "/about", label: "About", icon: Heart },
     { href: "/auth/signup", label: "Contribution", icon: Zap },
   ];
+  // social links
 
   const socialLinks = [
     { 
