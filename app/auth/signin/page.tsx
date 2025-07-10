@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signIn, useSession } from 'next-auth/react';
@@ -30,7 +30,8 @@ const formSchema = z.object({
     .min(1, "Password is required"),
 });
 
-export default function SignInPage() {
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -319,5 +320,26 @@ export default function SignInPage() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function SignInLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/95 to-background/90">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading sign in page...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInLoading />}>
+      <SignInForm />
+    </Suspense>
   );
 }
