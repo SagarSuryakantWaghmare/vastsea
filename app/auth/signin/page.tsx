@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,7 +32,8 @@ const formSchema = z.object({
     .min(1, "Password is required"),
 });
 
-// Component that uses useSearchParams - needs to be wrapped in Suspense
+// This component uses useSearchParams, so it needs to be wrapped in Suspense
+// because Next.js 15 handles search params differently for better performance
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -41,19 +42,31 @@ function SignInForm() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorType, setErrorType] = useState<'network' | 'credentials' | 'server' | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Check for success messages from URL parameters
+  // Let's check if the user just came from a successful registration
   useEffect(() => {
     const message = searchParams.get('message');
     if (message === 'account-created') {
+      // Clean up the URL so the message doesn't stick around
+      const url = new URL(window.location.href);
+      url.searchParams.delete('message');
+      window.history.replaceState({}, '', url.toString());
+      
+      // Welcome the new user!
       setSuccess('Account created successfully! Please sign in with your credentials.');
       toast.success('Account created successfully!', {
         description: 'Please sign in with your new credentials.',
       });
+      
+      // Auto-hide the welcome message after a reasonable time
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
     }
   }, [searchParams]);
 
-  // Handle redirect after successful authentication
+  // Once the user successfully signs in, let's redirect them to the right place
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.email) {
       const isAdmin = isAdminEmail(session.user.email);
@@ -78,7 +91,17 @@ function SignInForm() {
     },
   });
 
-  // Helper function to get user-friendly error messages
+  // If the user starts typing, let's clear any lingering success messages
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      if (success) {
+        setSuccess(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, success]);
+
+  // I made this helper to translate technical errors into friendly messages
   const getErrorMessage = (error: string): { message: string; type: 'network' | 'credentials' | 'server' } => {
     switch (error) {
       case 'CredentialsSignin':
@@ -149,7 +172,7 @@ function SignInForm() {
     setSuccess(null);
     setErrorType(null);
 
-    // Show loading toast
+    // Time to show the user we're working on signing them in
     toast.loading('Signing you in...', {
       description: 'Please wait while we verify your credentials.',
     });
@@ -166,17 +189,17 @@ function SignInForm() {
         setError(errorInfo.message);
         setErrorType(errorInfo.type);
         
-        // Dismiss loading toast and show error
+        // Something went wrong with the login attempt
         toast.dismiss();
         toast.error('Sign in failed', {
           description: errorInfo.message,
         });
       } else if (result?.ok) {
-        // Success - show loading message while redirect happens
+        // Success! User is now signed in 🎉
         setSuccess('Sign in successful! Redirecting...');
         toast.dismiss();
-        // Note: The success toast will be shown in the useEffect when session is updated
-        // The useEffect will handle the redirect based on user role
+        // The useEffect above will handle showing the success message and redirecting
+        // based on whether the user is an admin or regular user
       }
     } catch (error: any) {
       console.error('Sign-in exception:', error);
@@ -184,7 +207,7 @@ function SignInForm() {
       setError(errorInfo.message);
       setErrorType(errorInfo.type);
       
-      // Dismiss loading toast and show error
+      // Network issues or other unexpected problems
       toast.dismiss();
       toast.error('Connection error', {
         description: errorInfo.message,
@@ -252,19 +275,28 @@ function SignInForm() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Enter your password" 
-                          className="rounded-lg h-11"
-                          {...field} 
-                        />
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter your password" 
+                            className="rounded-lg h-11 pr-10"
+                            {...field} 
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* Success Message */}
+                {/* When everything goes smoothly, we show this happy message */}
                 {success && (
                   <Alert className="border-green-200 bg-green-50 dark:bg-green-950/50">
                     <CheckCircle className="h-4 w-4 text-green-600" />
@@ -274,7 +306,7 @@ function SignInForm() {
                   </Alert>
                 )}
 
-                {/* Error Message */}
+                {/* When something goes wrong, we show this helpful error message */}
                 {error && (
                   <Alert className={`${
                     errorType === 'network' 

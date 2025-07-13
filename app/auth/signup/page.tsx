@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,8 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorType, setErrorType] = useState<'network' | 'validation' | 'server' | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,18 +60,18 @@ export default function SignUpPage() {
     },
   });
 
-  // Helper function to get user-friendly error messages
+  // I wrote this helper to make error messages more user-friendly and less technical
   const getErrorMessage = (error: any): { message: string; type: 'network' | 'validation' | 'server' } => {
     if (!error) return { message: 'An unexpected error occurred', type: 'server' };
     
     const errorMessage = error.message || error.toString();
     
-    // Network errors
+    // When the internet connection is acting up
     if (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('Failed to fetch')) {
       return { message: 'Network error. Please check your internet connection and try again.', type: 'network' };
     }
     
-    // Validation errors
+    // When user tries to register with an email that's already taken
     if (errorMessage.includes('Email already exists') || errorMessage.includes('already registered')) {
       return { message: 'An account with this email already exists. Please sign in instead.', type: 'validation' };
     }
@@ -86,7 +88,7 @@ export default function SignUpPage() {
       return { message: 'Please enter a valid name.', type: 'validation' };
     }
     
-    // Server errors
+    // When our backend servers are having a rough day
     if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
       return { message: 'Server error. Please try again later.', type: 'server' };
     }
@@ -95,7 +97,7 @@ export default function SignUpPage() {
       return { message: 'Invalid request. Please check your information and try again.', type: 'validation' };
     }
     
-    // Default case
+    // For everything else we didn't expect
     return { message: errorMessage || 'Something went wrong. Please try again.', type: 'server' };
   };
 
@@ -105,7 +107,7 @@ export default function SignUpPage() {
     setSuccess(null);
     setErrorType(null);
 
-    // Show loading toast
+    // Let the user know we're working on creating their account
     toast.loading('Creating your account...', {
       description: 'Please wait while we set up your account.',
     });
@@ -130,7 +132,7 @@ export default function SignUpPage() {
         setError(errorInfo.message);
         setErrorType(errorInfo.type);
         
-        // Dismiss loading toast and show error
+        // Something went wrong, so let's tell the user what happened
         toast.dismiss();
         toast.error('Registration failed', {
           description: errorInfo.message,
@@ -138,17 +140,21 @@ export default function SignUpPage() {
         return;
       }
 
-      // Success
+      // Woohoo! Account created successfully 🎉
       setSuccess('Account created successfully! Redirecting to sign in...');
       toast.dismiss();
       toast.success('Account created successfully!', {
         description: 'Redirecting to sign in page...',
       });
       
-      // Redirect after a short delay to show success message
+      // Clean up the form before we redirect
+      form.reset();
+      
+      // Give the user a moment to see the success message before redirecting
       setTimeout(() => {
+        setSuccess(null); // Clean up the success message
         router.push('/auth/signin?message=account-created');
-      }, 2000);
+      }, 1500); // Just enough time to feel good about the success
 
     } catch (error: any) {
       console.error('Signup error:', error);
@@ -156,7 +162,7 @@ export default function SignUpPage() {
       setError(errorInfo.message);
       setErrorType(errorInfo.type);
       
-      // Dismiss loading toast and show error
+      // Network issues or other unexpected errors
       toast.dismiss();
       toast.error('Network error', {
         description: errorInfo.message,
@@ -242,12 +248,25 @@ export default function SignUpPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Create a password" 
-                          className="rounded-lg h-11"
-                          {...field} 
-                        />
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Create a password" 
+                            className="rounded-lg h-11 pr-10"
+                            {...field} 
+                          />
+                          <button
+                            type="button"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -261,19 +280,32 @@ export default function SignUpPage() {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Confirm your password" 
-                          className="rounded-lg h-11"
-                          {...field} 
-                        />
+                        <div className="relative">
+                          <Input 
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm your password" 
+                            className="rounded-lg h-11 pr-10"
+                            {...field} 
+                          />
+                          <button
+                            type="button"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* Success Message */}
+                {/* When things go well, we show this happy message */}
                 {success && (
                   <Alert className="border-green-200 bg-green-50 dark:bg-green-950/50">
                     <CheckCircle className="h-4 w-4 text-green-600" />
@@ -283,7 +315,7 @@ export default function SignUpPage() {
                   </Alert>
                 )}
 
-                {/* Error Message */}
+                {/* When something goes wrong, we show this helpful error message */}
                 {error && (
                   <Alert className={`${
                     errorType === 'network' 
