@@ -49,9 +49,9 @@ export default async function Home() {
       <div className="w-full py-10 space-y-16">
         {/* Hero Section */}
         <section className="flex flex-col items-center text-center space-y-8 py-16 px-4">
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight">
+            <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight">
             VastSea
-          </h1>
+            </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-[700px] leading-relaxed">
             A modern platform for sharing programming problems and solutions in multiple languages
           </p>

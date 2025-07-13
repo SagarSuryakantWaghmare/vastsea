@@ -61,9 +61,6 @@ const Navbar = () => {
                 Leaderboard
               </span>
             </Link>
-            <Link href="/about" className="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
-              About
-            </Link>
           </nav>
         </div>
 
@@ -242,15 +239,6 @@ const Navbar = () => {
                   >
                     <Trophy className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                     <span>Leaderboard</span>
-                  </Link>
-                  
-                  <Link 
-                    href="/about" 
-                    className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Info className="mr-3 h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                    <span>About</span>
                   </Link>
                   
                   {session ? (
