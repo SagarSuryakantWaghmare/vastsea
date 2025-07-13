@@ -66,16 +66,17 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <div className="container py-10">      <div className="flex flex-col space-y-4 mb-8">
-        <h1 className="text-4xl font-bold">Leaderboard</h1>
+    <div className="container py-6 sm:py-10 px-4">
+      <div className="flex flex-col space-y-4 mb-6 sm:mb-8">
+        <h1 className="text-3xl sm:text-4xl font-bold">Leaderboard</h1>
         <div className="flex flex-col gap-2">
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             See who's contributed the most problems to our community
           </p>
-          <div className="flex flex-wrap gap-4 mt-2">
+          <div className="flex flex-wrap gap-2 sm:gap-4 mt-2">
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm font-medium">Gold: 1st Place</span>
+              <span className="text-xs sm:text-sm font-medium">Gold: 1st Place</span>
             </div>
             <div className="flex items-center gap-2">
               <Medal className="h-4 w-4 text-gray-400" />

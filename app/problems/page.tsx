@@ -107,17 +107,17 @@ export default function ProblemsPage() {
   };
   
   return (
-    <div className="container py-10">
+    <div className="container py-6 sm:py-10">
       {/* Header */}
-      <div className="flex flex-col space-y-4 mb-8">
-        <h1 className="text-4xl font-bold">Coding Problems</h1>
-        <p className="text-muted-foreground">
+      <div className="flex flex-col space-y-4 mb-6 sm:mb-8">
+        <h1 className="text-3xl sm:text-4xl font-bold">Coding Problems</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Browse our collection of programming problems with solutions in multiple languages
         </p>
       </div>
       
       {/* Search and Filters */}
-      <div className="flex flex-col gap-4 mb-8">
+      <div className="flex flex-col gap-4 mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -138,7 +138,7 @@ export default function ProblemsPage() {
           )}
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col space-y-4">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
@@ -149,7 +149,7 @@ export default function ProblemsPage() {
                 <Badge 
                   key={language}
                   variant={selectedLanguage === language ? "default" : "outline"}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-xs sm:text-sm"
                   onClick={() => setSelectedLanguage(language)}
                 >
                   {languageDisplayNames[language]}
@@ -168,7 +168,7 @@ export default function ProblemsPage() {
                 <Badge 
                   key={tag}
                   variant={selectedTag === tag ? "default" : "outline"}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-xs sm:text-sm"
                   onClick={() => setSelectedTag(tag)}
                 >
                   {tag}
@@ -211,7 +211,7 @@ export default function ProblemsPage() {
           </motion.div>
         ) : problems.length > 0 ? (
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}

@@ -179,9 +179,9 @@ export default function ProblemPage({ params }: PageProps) {
     : '';
 
   return (
-    <div className="container py-8">
+    <div className="container py-4 sm:py-8">
       {/* Back button */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Button variant="outline" size="sm" asChild>
           <Link href="/problems" className="flex items-center">
             <ChevronLeft className="mr-2 h-4 w-4" />
@@ -191,8 +191,8 @@ export default function ProblemPage({ params }: PageProps) {
       </div>
       
       {/* Problem header */}
-      <div className="space-y-6 mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold">{problem.title}</h1>
+      <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">{problem.title}</h1>
         
         <div className="flex flex-wrap gap-2 items-center">
           {problem.author && (
@@ -221,14 +221,14 @@ export default function ProblemPage({ params }: PageProps) {
       </div>
       
       {/* Problem description */}
-      <div className="prose prose-stone dark:prose-invert max-w-none mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Description</h2>
-        <div className="whitespace-pre-line">{problem.description}</div>
+      <div className="prose prose-stone dark:prose-invert max-w-none mb-8 sm:mb-10">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">Description</h2>
+        <div className="whitespace-pre-line text-sm sm:text-base leading-relaxed">{problem.description}</div>
       </div>
       
       {/* Code solutions */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">Solutions</h2>
+      <div className="space-y-4 sm:space-y-6">
+        <h2 className="text-xl sm:text-2xl font-semibold">Solutions</h2>
         
         {availableLanguages.length > 0 ? (
           <Tabs 
@@ -236,9 +236,13 @@ export default function ProblemPage({ params }: PageProps) {
             onValueChange={setActiveLanguage as (value: string) => void}
             className="w-full"
           >
-            <TabsList className="mb-4">
+            <TabsList className="mb-4 flex-wrap h-auto p-1 gap-1">
               {availableLanguages.map((language) => (
-                <TabsTrigger key={language} value={language}>
+                <TabsTrigger 
+                  key={language} 
+                  value={language}
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
+                >
                   {languageDisplayNames[language] || language}
                 </TabsTrigger>
               ))}

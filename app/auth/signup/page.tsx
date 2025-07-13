@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string()
@@ -104,6 +105,11 @@ export default function SignUpPage() {
     setSuccess(null);
     setErrorType(null);
 
+    // Show loading toast
+    toast.loading('Creating your account...', {
+      description: 'Please wait while we set up your account.',
+    });
+
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -123,11 +129,21 @@ export default function SignUpPage() {
         const errorInfo = getErrorMessage(new Error(data.error || data.message || 'Registration failed'));
         setError(errorInfo.message);
         setErrorType(errorInfo.type);
+        
+        // Dismiss loading toast and show error
+        toast.dismiss();
+        toast.error('Registration failed', {
+          description: errorInfo.message,
+        });
         return;
       }
 
       // Success
       setSuccess('Account created successfully! Redirecting to sign in...');
+      toast.dismiss();
+      toast.success('Account created successfully!', {
+        description: 'Redirecting to sign in page...',
+      });
       
       // Redirect after a short delay to show success message
       setTimeout(() => {
@@ -139,6 +155,12 @@ export default function SignUpPage() {
       const errorInfo = getErrorMessage(error);
       setError(errorInfo.message);
       setErrorType(errorInfo.type);
+      
+      // Dismiss loading toast and show error
+      toast.dismiss();
+      toast.error('Network error', {
+        description: errorInfo.message,
+      });
     } finally {
       setIsLoading(false);
     }

@@ -22,6 +22,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getAdminEmails, isAdminEmail } from "@/lib/admin-utils";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string()
@@ -46,6 +47,9 @@ function SignInForm() {
     const message = searchParams.get('message');
     if (message === 'account-created') {
       setSuccess('Account created successfully! Please sign in with your credentials.');
+      toast.success('Account created successfully!', {
+        description: 'Please sign in with your new credentials.',
+      });
     }
   }, [searchParams]);
 
@@ -53,6 +57,10 @@ function SignInForm() {
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.email) {
       const isAdmin = isAdminEmail(session.user.email);
+      
+      toast.success('Sign in successful!', {
+        description: `Redirecting to ${isAdmin ? 'admin dashboard' : 'dashboard'}...`,
+      });
       
       if (isAdmin) {
         router.push('/admin');
@@ -141,6 +149,11 @@ function SignInForm() {
     setSuccess(null);
     setErrorType(null);
 
+    // Show loading toast
+    toast.loading('Signing you in...', {
+      description: 'Please wait while we verify your credentials.',
+    });
+
     try {
       const result = await signIn('credentials', {
         redirect: false,
@@ -152,9 +165,17 @@ function SignInForm() {
         const errorInfo = getErrorMessage(result.error);
         setError(errorInfo.message);
         setErrorType(errorInfo.type);
+        
+        // Dismiss loading toast and show error
+        toast.dismiss();
+        toast.error('Sign in failed', {
+          description: errorInfo.message,
+        });
       } else if (result?.ok) {
         // Success - show loading message while redirect happens
         setSuccess('Sign in successful! Redirecting...');
+        toast.dismiss();
+        // Note: The success toast will be shown in the useEffect when session is updated
         // The useEffect will handle the redirect based on user role
       }
     } catch (error: any) {
@@ -162,6 +183,12 @@ function SignInForm() {
       const errorInfo = getErrorMessage(error.message || 'Connection error');
       setError(errorInfo.message);
       setErrorType(errorInfo.type);
+      
+      // Dismiss loading toast and show error
+      toast.dismiss();
+      toast.error('Connection error', {
+        description: errorInfo.message,
+      });
     } finally {
       setIsLoading(false);
     }
