@@ -78,12 +78,15 @@ const AboutContent = () => {
           className="text-center mb-16"
         >
           <div className="flex flex-col items-center gap-6">
-            <Avatar className="h-32 w-32 border-4 border-primary/20 shadow-xl">
-              <AvatarImage src="/avatars/sagar.jpg" alt="Sagar Suryakant Waghmare" />
-              <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 text-white">
-                SW
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative group">
+              <div className="h-48 w-48 overflow-hidden rounded-2xl border-4 border-primary/20 shadow-xl transition-transform duration-300 ease-in-out group-hover:scale-[1.025]">
+                <img 
+                  src="/avatars/sagar.jpg" 
+                  alt="Sagar Suryakant Waghmare"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </div>
             
             <div>
               <h1 className="py-4 text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-500 text-transparent bg-clip-text leading-tight tracking-tight mb-4">
