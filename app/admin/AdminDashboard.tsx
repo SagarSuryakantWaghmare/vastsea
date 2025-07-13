@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
 import { Trash2, Edit, Plus, Search, Users, FileText, Shield, Settings, Eye, Clock } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -20,10 +21,10 @@ interface Problem {
   _id: string;
   title: string;
   description: string;
-  author: {
+  author?: {
     name: string;
     email: string;
-  };
+  } | null;
   createdAt: string;
 }
 
@@ -93,15 +94,27 @@ const AdminDashboard = () => {
       if (problemsRes.ok) {
         const problemsData = await problemsRes.json();
         setProblems(problemsData);
+      } else {
+        console.error('Failed to fetch problems:', problemsRes.status);
+        toast.error('Failed to load problems', {
+          description: 'Please check your connection and try again.',
+        });
       }
       
       if (usersRes.ok) {
         const usersData = await usersRes.json();
         setUsers(usersData);
+      } else {
+        console.error('Failed to fetch users:', usersRes.status);
+        toast.error('Failed to load users', {
+          description: 'Please check your connection and try again.',
+        });
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to fetch data');
+      toast.error('Network error occurred', {
+        description: 'Unable to connect to the server. Please try again later.',
+      });
     } finally {
       setLoading(false);
     }
@@ -126,17 +139,26 @@ const AdminDashboard = () => {
       });
       
       if (response.ok) {
-        toast.success(editingProblem ? 'Problem updated successfully' : 'Problem created successfully');
+        const action = editingProblem ? 'updated' : 'created';
+        toast.success(`Problem ${action} successfully`, {
+          description: `"${problemForm.title}" has been ${action}.`,
+        });
         setIsDialogOpen(false);
         setProblemForm({ title: '', description: '' });
         setEditingProblem(null);
         fetchData();
       } else {
-        throw new Error('Failed to save problem');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `Failed to ${editingProblem ? 'update' : 'create'} problem`;
+        toast.error('Operation failed', {
+          description: errorMessage,
+        });
       }
     } catch (error) {
       console.error('Error saving problem:', error);
-      toast.error('Failed to save problem');
+      toast.error('Network error', {
+        description: 'Unable to save problem. Please check your connection.',
+      });
     }
   };
 
@@ -159,17 +181,44 @@ const AdminDashboard = () => {
       });
       
       if (response.ok) {
-        toast.success(editingUser ? 'User updated successfully' : 'User created successfully');
+        const responseData = await response.json();
+        const action = editingUser ? 'updated' : 'created';
+        
+        toast.success(`User ${action} successfully`, {
+          description: `${userForm.name} (${userForm.email}) has been ${action}.`,
+        });
+        
+        // Show temporary password if user was created and password was auto-generated
+        if (!editingUser && responseData.tempPassword) {
+          toast.info('Temporary password generated', {
+            description: `Temporary password: ${responseData.tempPassword}`,
+            duration: 10000, // Show for 10 seconds
+          });
+        }
+        
         setIsUserDialogOpen(false);
         setUserForm({ name: '', email: '', role: 'user' });
         setEditingUser(null);
         fetchData();
       } else {
-        throw new Error('Failed to save user');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `Failed to ${editingUser ? 'update' : 'create'} user`;
+        
+        if (response.status === 400 && errorMessage.includes('email')) {
+          toast.error('Email already exists', {
+            description: 'A user with this email address already exists.',
+          });
+        } else {
+          toast.error('Operation failed', {
+            description: errorMessage,
+          });
+        }
       }
     } catch (error) {
       console.error('Error saving user:', error);
-      toast.error('Failed to save user');
+      toast.error('Network error', {
+        description: 'Unable to save user. Please check your connection.',
+      });
     }
   };
 
@@ -180,14 +229,33 @@ const AdminDashboard = () => {
       });
       
       if (response.ok) {
-        toast.success('Problem deleted successfully');
+        toast.success('Problem deleted successfully', {
+          description: 'The problem has been permanently removed.',
+        });
         fetchData();
       } else {
-        throw new Error('Failed to delete problem');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || 'Failed to delete problem';
+        
+        if (response.status === 404) {
+          toast.error('Problem not found', {
+            description: 'The problem may have already been deleted.',
+          });
+        } else if (response.status === 403) {
+          toast.error('Permission denied', {
+            description: 'You do not have permission to delete this problem.',
+          });
+        } else {
+          toast.error('Delete failed', {
+            description: errorMessage,
+          });
+        }
       }
     } catch (error) {
       console.error('Error deleting problem:', error);
-      toast.error('Failed to delete problem');
+      toast.error('Network error', {
+        description: 'Unable to delete problem. Please check your connection.',
+      });
     }
   };
 
@@ -198,14 +266,37 @@ const AdminDashboard = () => {
       });
       
       if (response.ok) {
-        toast.success('User deleted successfully');
+        toast.success('User deleted successfully', {
+          description: 'The user account has been permanently removed.',
+        });
         fetchData();
       } else {
-        throw new Error('Failed to delete user');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || 'Failed to delete user';
+        
+        if (response.status === 404) {
+          toast.error('User not found', {
+            description: 'The user may have already been deleted.',
+          });
+        } else if (response.status === 403) {
+          toast.error('Cannot delete admin user', {
+            description: 'Admin users cannot be deleted for security reasons.',
+          });
+        } else if (response.status === 401) {
+          toast.error('Unauthorized', {
+            description: 'You do not have permission to delete users.',
+          });
+        } else {
+          toast.error('Delete failed', {
+            description: errorMessage,
+          });
+        }
       }
     } catch (error) {
       console.error('Error deleting user:', error);
-      toast.error('Failed to delete user');
+      toast.error('Network error', {
+        description: 'Unable to delete user. Please check your connection.',
+      });
     }
   };
 
@@ -374,6 +465,7 @@ const AdminDashboard = () => {
                           id="title"
                           value={problemForm.title}
                           onChange={(e) => setProblemForm({ ...problemForm, title: e.target.value })}
+                          placeholder="Enter problem title"
                           required
                         />
                       </div>
@@ -383,13 +475,17 @@ const AdminDashboard = () => {
                           id="description"
                           value={problemForm.description}
                           onChange={(e) => setProblemForm({ ...problemForm, description: e.target.value })}
+                          placeholder="Enter problem description and requirements..."
                           rows={5}
                           required
                         />
                       </div>
                       <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                          Cancel
+                        </Button>
                         <Button type="submit">
-                          {editingProblem ? 'Update' : 'Create'}
+                          {editingProblem ? 'Update Problem' : 'Create Problem'}
                         </Button>
                       </DialogFooter>
                     </form>
@@ -398,67 +494,85 @@ const AdminDashboard = () => {
               </div>
 
               <div className="grid gap-4">
-                {filteredProblems.map((problem) => (
-                  <Card key={problem._id} className="border-border/50 hover:border-primary/50 transition-all duration-300">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg mb-2">{problem.title}</h3>
-                          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                            {problem.description}
-                          </p>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>By {problem.author.name}</span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {new Date(problem.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => router.push(`/problems/${problem._id}`)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditProblem(problem)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Problem</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete "{problem.title}"? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteProblem(problem._id)}
-                                  className="bg-destructive hover:bg-destructive/90"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </div>
+                {filteredProblems.length === 0 ? (
+                  <Card className="border-border/50">
+                    <CardContent className="p-8 text-center">
+                      <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                      <h3 className="text-lg font-semibold mb-2">No problems found</h3>
+                      <p className="text-muted-foreground mb-4">
+                        {searchTerm ? 'No problems match your search criteria.' : 'Get started by creating your first problem.'}
+                      </p>
+                      {!searchTerm && (
+                        <Button onClick={() => setIsDialogOpen(true)}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Problem
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
-                ))}
+                ) : (
+                  filteredProblems.map((problem) => (
+                    <Card key={problem._id} className="border-border/50 hover:border-primary/50 transition-all duration-300">
+                      <CardContent className="p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-2">{problem.title}</h3>
+                            <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                              {problem.description}
+                            </p>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span>By {problem.author?.name || 'Unknown Author'}</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {new Date(problem.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => router.push(`/problems/${problem._id}`)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditProblem(problem)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Problem</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete "{problem.title}"? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteProblem(problem._id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </TabsContent>
 
@@ -498,6 +612,7 @@ const AdminDashboard = () => {
                           id="name"
                           value={userForm.name}
                           onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                          placeholder="Enter full name"
                           required
                         />
                       </div>
@@ -508,12 +623,32 @@ const AdminDashboard = () => {
                           type="email"
                           value={userForm.email}
                           onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                          placeholder="Enter email address"
                           required
                         />
                       </div>
+                      <div>
+                        <Label htmlFor="role">Role</Label>
+                        <Select 
+                          value={userForm.role} 
+                          onValueChange={(value) => setUserForm({ ...userForm, role: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="moderator">Moderator</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                       <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setIsUserDialogOpen(false)}>
+                          Cancel
+                        </Button>
                         <Button type="submit">
-                          {editingUser ? 'Update' : 'Create'}
+                          {editingUser ? 'Update User' : 'Create User'}
                         </Button>
                       </DialogFooter>
                     </form>
@@ -522,60 +657,90 @@ const AdminDashboard = () => {
               </div>
 
               <div className="grid gap-4">
-                {filteredUsers.map((user) => (
-                  <Card key={user._id} className="border-border/50 hover:border-primary/50 transition-all duration-300">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg mb-2">{user.name}</h3>
-                          <p className="text-muted-foreground text-sm mb-3">{user.email}</p>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <Badge variant="outline">
-                              {user.role || 'User'}
-                            </Badge>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {new Date(user.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditUser(user)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete User</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete "{user.name}"? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteUser(user._id)}
-                                  className="bg-destructive hover:bg-destructive/90"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </div>
+                {filteredUsers.length === 0 ? (
+                  <Card className="border-border/50">
+                    <CardContent className="p-8 text-center">
+                      <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                      <h3 className="text-lg font-semibold mb-2">No users found</h3>
+                      <p className="text-muted-foreground mb-4">
+                        {searchTerm ? 'No users match your search criteria.' : 'Get started by creating user accounts.'}
+                      </p>
+                      {!searchTerm && (
+                        <Button onClick={() => setIsUserDialogOpen(true)}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create User
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
-                ))}
+                ) : (
+                  filteredUsers.map((user) => (
+                    <Card key={user._id} className="border-border/50 hover:border-primary/50 transition-all duration-300">
+                      <CardContent className="p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-2">{user.name}</h3>
+                            <p className="text-muted-foreground text-sm mb-3">{user.email}</p>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <Badge variant="outline" className={
+                                user.role === 'admin' ? 'border-red-500/20 text-red-600 bg-red-500/10' : 
+                                user.role === 'moderator' ? 'border-blue-500/20 text-blue-600 bg-blue-500/10' : 
+                                'border-green-500/20 text-green-600 bg-green-500/10'
+                              }>
+                                {user.role || 'User'}
+                              </Badge>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {new Date(user.createdAt).toLocaleDateString()}
+                              </span>
+                              {user.problemsCount !== undefined && (
+                                <span>{user.problemsCount} problems</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditUser(user)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="text-destructive hover:text-destructive"
+                                  disabled={user.role === 'admin' && user.email === session?.user?.email}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete "{user.name}"? This action cannot be undone and will permanently remove the user account.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteUser(user._id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    Delete User
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </TabsContent>
           </Tabs>
