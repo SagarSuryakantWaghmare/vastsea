@@ -16,6 +16,7 @@ import { Trash2, Edit, Plus, Search, Users, FileText, Shield, Settings, Eye, Clo
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { isAdminEmail } from '@/lib/admin-utils';
 
 interface Problem {
   _id: string;
@@ -73,8 +74,7 @@ const AdminDashboard = () => {
       return;
     }
     
-    const adminEmails = ['sagarwaghmare1384@gmail.com', 'admin@vastsea.com'];
-    if (!adminEmails.includes(session.user?.email || '')) {
+    if (!isAdminEmail(session.user?.email)) {
       router.push('/');
       toast.error('Access denied. Admin privileges required.');
       return;

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { getAdminEmails, isAdminEmail } from "@/lib/admin-utils";
 
 const formSchema = z.object({
   email: z.string()
@@ -40,9 +41,6 @@ function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorType, setErrorType] = useState<'network' | 'credentials' | 'server' | null>(null);
 
-  // Admin emails
-  const adminEmails = ['sagarwaghmare1384@gmail.com', 'admin@vastsea.com'];
-
   // Check for success messages from URL parameters
   useEffect(() => {
     const message = searchParams.get('message');
@@ -54,7 +52,7 @@ function SignInForm() {
   // Handle redirect after successful authentication
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.email) {
-      const isAdmin = adminEmails.includes(session.user.email);
+      const isAdmin = isAdminEmail(session.user.email);
       
       if (isAdmin) {
         router.push('/admin');

@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { isAdminEmail } from '@/lib/admin-utils';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -112,7 +113,7 @@ const Navbar = () => {
                   </Link>
                 </DropdownMenuItem>
                 {/* Admin Link - Only show for admin users */}
-                {session.user?.email === 'sagarwaghmare1384@gmail.com' || session.user?.email === 'admin@vastsea.com' ? (
+                {isAdminEmail(session.user?.email) ? (
                   <DropdownMenuItem asChild className="cursor-pointer rounded-xl focus:bg-accent/80 h-11 px-3 mb-1">
                     <Link href="/admin" className="flex items-center">
                       <Settings className="mr-3 h-4 w-4" />
@@ -278,7 +279,7 @@ const Navbar = () => {
                       </Link>
                       
                       {/* Admin Link - Only show for admin users */}
-                      {session.user?.email === 'sagarwaghmare1384@gmail.com' || session.user?.email === 'admin@vastsea.com' ? (
+                      {isAdminEmail(session.user?.email) ? (
                         <Link
                           href="/admin"
                           className="flex items-center px-4 py-3 text-base font-medium rounded-xl hover:bg-accent/60 transition-all duration-200 group"
